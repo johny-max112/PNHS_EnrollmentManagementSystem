@@ -1,0 +1,357 @@
+.topbar {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--surface-border);
+  background: linear-gradient(90deg, #0f766e 0%, #155e75 100%);
+  color: #f0fdfa;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.topbar p {
+  margin: 0 0 10px;
+}
+
+.topnav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.topnav a,
+.topnav span,
+.topnav button {
+  color: #e0f2fe;
+  border: 1px solid rgba(224, 242, 254, 0.4);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  background: rgba(15, 23, 42, 0.15);
+  text-decoration: none;
+}
+
+.topnav a.active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.topnav button {
+  cursor: pointer;
+}
+
+.page-shell {
+  width: min(1100px, 92vw);
+  margin: 24px auto;
+}
+
+.enroll-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+}
+
+.enroll-card,
+.subject-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.1);
+  padding: 24px;
+}
+
+.enroll-card h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.35rem, 2.6vw, 2.1rem);
+}
+
+.enroll-card p {
+  margin: 0 0 20px;
+  color: #425466;
+}
+
+.enroll-card label {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 7px;
+}
+
+.enroll-card input,
+.enroll-card select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border-radius: 11px;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: #f8fafc;
+}
+
+.enroll-card input:focus,
+.enroll-card select:focus {
+  outline: 2px solid rgba(14, 116, 144, 0.33);
+  border-color: #0e7490;
+}
+
+.enroll-card button {
+  width: 100%;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #0f766e, #0e7490);
+  color: #f8fafc;
+  font-size: 0.96rem;
+  font-weight: 700;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.enroll-card button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-top: 12px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+}
+
+.status.error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.status.success {
+  background: #ecfeff;
+  color: #155e75;
+}
+
+.auth-card {
+  max-width: 420px;
+  margin: 40px auto;
+}
+
+.workflow-controls {
+  max-width: 300px;
+  margin-bottom: 16px;
+}
+
+.workflow-controls select {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.workflow-table th,
+.workflow-table td {
+  border: 1px solid #e2e8f0;
+  padding: 8px;
+  text-align: left;
+}
+
+.workflow-table th {
+  background: #f8fafc;
+}
+
+.workflow-table select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.report-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.report-card {
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  padding: 14px;
+  background: #f8fbff;
+}
+
+.report-card h2 {
+  margin: 0 0 10px;
+}
+
+.report-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.report-card input,
+.report-card select {
+  width: 100%;
+  margin-bottom: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.report-card button {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: #f8fafc;
+  background: linear-gradient(90deg, #0f766e, #0e7490);
+  font-weight: 700;
+}
+
+.report-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.portal-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+}
+
+.portal-link,
+.inline-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f766e, #0e7490);
+  color: #f8fafc;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.subject-list-compact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.subject-list-compact li {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.subject-list-compact span {
+  font-weight: 700;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 20px;
+}
+
+.admin-layout .workflow-table input,
+.admin-layout .workflow-table select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.88rem;
+}
+
+.admin-layout .workflow-table button {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #f8fafc;
+  background: linear-gradient(90deg, #0f766e, #0e7490);
+  font-weight: 700;
+}
+
+.subject-card h2 {
+  margin-top: 0;
+}
+
+.subject-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.subject-card li {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subject-card span {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.subject-card small {
+  color: #334155;
+}
+
+@media (max-width: 860px) {
+  .topnav {
+    flex-wrap: wrap;
+  }
+
+  .topnav a,
+  .topnav span,
+  .topnav button {
+    font-size: 0.72rem;
+  }
+
+  .enroll-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .page-shell {
+    width: min(660px, 92vw);
+  }
+}
