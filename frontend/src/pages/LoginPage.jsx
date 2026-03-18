@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import api from '../api/client';
 
-function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState('registrar');
-  const [password, setPassword] = useState('Registrar123!');
+function LoginPage({ onLogin, expectedRole = 'registrar' }) {
+  const isAdmin = expectedRole === 'admin';
+  const [username, setUsername] = useState(isAdmin ? 'admin' : 'registrar');
+  const [password, setPassword] = useState(isAdmin ? 'Admin123!' : 'Registrar123!');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -14,6 +15,12 @@ function LoginPage({ onLogin }) {
 
     try {
       const { data } = await api.post('/api/auth/login', { username, password });
+
+      if (data?.user?.role !== expectedRole) {
+        setError(`This portal is for ${expectedRole} accounts only.`);
+        return;
+      }
+
       onLogin(data);
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed.');
@@ -25,8 +32,12 @@ function LoginPage({ onLogin }) {
   return (
     <main className="page-shell">
       <form className="enroll-card auth-card" onSubmit={handleSubmit}>
-        <h1>PNHS Staff Login</h1>
-        <p>Use your Registrar or Admin account to access enrollment workflows.</p>
+        <h1>{isAdmin ? 'PNHS Admin Login' : 'PNHS Registrar Login'}</h1>
+        <p>
+          {isAdmin
+            ? 'Use your admin account for full system and user management access.'
+            : 'Use your registrar account to manage enrollment workflows and reports.'}
+        </p>
 
         <label htmlFor="username">Username</label>
         <input

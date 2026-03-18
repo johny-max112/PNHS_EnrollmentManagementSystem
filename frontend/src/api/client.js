@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getStoredAuth } from '../utils/auth';
+import { getRoleFromPath, getStoredAuthByRole } from '../utils/auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
@@ -9,7 +9,8 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const auth = getStoredAuth();
+  const role = getRoleFromPath(window.location.pathname);
+  const auth = role ? getStoredAuthByRole(role) : null;
   if (auth?.token) {
     config.headers.Authorization = `Bearer ${auth.token}`;
   }

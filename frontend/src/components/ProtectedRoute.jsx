@@ -5,8 +5,12 @@ function getHomePath(role) {
     return '/student/dashboard';
   }
 
-  if (role === 'admin' || role === 'registrar') {
-    return '/enroll';
+  if (role === 'admin') {
+    return '/admin/enroll';
+  }
+
+  if (role === 'registrar') {
+    return '/registrar/enroll';
   }
 
   return '/';

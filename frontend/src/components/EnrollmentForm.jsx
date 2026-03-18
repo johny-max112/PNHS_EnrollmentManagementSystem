@@ -3,6 +3,26 @@ import api from '../api/client';
 
 const gradeOptions = [7, 8, 9, 10, 11, 12];
 
+const schoolYearInputPattern = '\\d{4}\\s*[-–—]\\s*\\d{4}';
+
+function normalizeSchoolYear(value = '') {
+  return value
+    .replace(/[–—−]/g, '-')
+    .replace(/\s*-\s*/g, '-')
+    .trim();
+}
+
+function isValidSchoolYear(value) {
+  const match = normalizeSchoolYear(value).match(/^(\d{4})-(\d{4})$/);
+  if (!match) {
+    return false;
+  }
+
+  const startYear = Number(match[1]);
+  const endYear = Number(match[2]);
+  return endYear === startYear + 1;
+}
+
 const defaultForm = {
   lrn: '',
   firstName: '',
@@ -102,11 +122,25 @@ function EnrollmentForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSchoolYearBlur = () => {
+    setFormData((prev) => ({
+      ...prev,
+      schoolYear: normalizeSchoolYear(prev.schoolYear),
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitting(true);
     setError('');
     setSuccess('');
+
+    const normalizedSchoolYear = normalizeSchoolYear(formData.schoolYear);
+    if (!isValidSchoolYear(normalizedSchoolYear)) {
+      setError('School year must be in YYYY-YYYY format, and the second year must be the next year.');
+      setSubmitting(false);
+      return;
+    }
 
     try {
       const payload = {
@@ -115,6 +149,7 @@ function EnrollmentForm() {
         trackId: formData.trackId ? Number(formData.trackId) : null,
         strandId: formData.strandId ? Number(formData.strandId) : null,
         sectionId: Number(formData.sectionId),
+        schoolYear: normalizedSchoolYear,
       };
 
       const { data } = await api.post('/api/enroll', payload);
@@ -246,9 +281,11 @@ function EnrollmentForm() {
           id="schoolYear"
           name="schoolYear"
           type="text"
-          pattern="\\d{4}-\\d{4}"
+          pattern={schoolYearInputPattern}
+          title="Use format YYYY-YYYY (example: 2026-2027)."
           value={formData.schoolYear}
           onChange={handleChange}
+          onBlur={handleSchoolYearBlur}
           required
         />
 
