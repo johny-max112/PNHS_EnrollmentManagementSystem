@@ -18,6 +18,12 @@ import {
   storeAuthByRole,
 } from './utils/auth'
 import './App.css'
+import './pages/base.css'
+import './pages/enrollment.css'
+import './pages/workflow.css'
+import './pages/reports.css'
+import './pages/portal.css'
+import './pages/admin.css'
 
 function getHomePath(role) {
   if (role === 'student') {
@@ -25,11 +31,11 @@ function getHomePath(role) {
   }
 
   if (role === 'admin') {
-    return '/admin/enroll'
+    return '/admin/workflow'
   }
 
   if (role === 'registrar') {
-    return '/registrar/enroll'
+    return '/registrar/workflow'
   }
 
   return '/'

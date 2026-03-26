@@ -1,0 +1,32 @@
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.portal-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+}
+
+.portal-link,
+.inline-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f766e, #0e7490);
+  color: #f8fafc;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+}

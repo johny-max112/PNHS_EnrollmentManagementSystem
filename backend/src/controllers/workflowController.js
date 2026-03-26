@@ -1,6 +1,17 @@
 const pool = require('../config/db');
 
-const ALLOWED_STATUS = ['pending', 'enrolled', 'completed', 'cancelled'];
+const ALLOWED_STATUS = ['pending', 'approved', 'enrolled', 'completed', 'cancelled'];
+const ALLOWED_TRANSITIONS = {
+  pending: ['approved', 'cancelled'],
+  approved: ['enrolled', 'cancelled'],
+  enrolled: ['completed', 'cancelled'],
+  completed: [],
+  cancelled: ['pending'],
+};
+
+function canTransitionStatus(currentStatus, nextStatus) {
+  return (ALLOWED_TRANSITIONS[currentStatus] || []).includes(nextStatus);
+}
 
 async function listEnrollments(req, res) {
   const status = req.query.status;
@@ -66,6 +77,85 @@ async function listSections(_req, res) {
   }
 }
 
+async function getEnrollmentApplication(req, res) {
+  const enrollmentId = Number(req.params.id);
+
+  if (!Number.isInteger(enrollmentId) || enrollmentId <= 0) {
+    return res.status(400).json({ message: 'Invalid enrollment ID.' });
+  }
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT
+        e.id,
+        e.school_year,
+        e.grade_level,
+        e.status,
+        e.created_at,
+        e.updated_at,
+        s.lrn,
+        s.first_name,
+        s.last_name,
+        s.middle_name,
+        s.suffix,
+        sec.section_name,
+        t.track_name,
+        st.strand_name
+      FROM enrollments e
+      JOIN students s ON s.id = e.student_id
+      JOIN sections sec ON sec.id = e.section_id
+      LEFT JOIN tracks t ON t.id = e.track_id
+      LEFT JOIN strands st ON st.id = e.strand_id
+      WHERE e.id = ?
+      LIMIT 1`,
+      [enrollmentId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Enrollment application not found.' });
+    }
+
+    const application = rows[0];
+
+    const [subjects] = await pool.query(
+      `SELECT sub.id, sub.subject_code, sub.subject_name
+       FROM enrollment_subjects es
+       JOIN subjects sub ON sub.id = es.subject_id
+       WHERE es.enrollment_id = ?
+       ORDER BY sub.subject_code`,
+      [enrollmentId]
+    );
+
+    const [logs] = await pool.query(
+      `SELECT
+        l.id,
+        l.old_status,
+        l.new_status,
+        l.notes,
+        l.changed_at,
+        u.full_name AS changed_by_name,
+        u.role AS changed_by_role
+      FROM enrollment_status_logs l
+      LEFT JOIN users u ON u.id = l.changed_by
+      WHERE l.enrollment_id = ?
+      ORDER BY l.changed_at DESC, l.id DESC`,
+      [enrollmentId]
+    );
+
+    return res.json({
+      application: {
+        ...application,
+        documents: [],
+      },
+      subjects,
+      logs,
+    });
+  } catch (error) {
+    console.error('Failed to load enrollment application:', error);
+    return res.status(500).json({ message: 'Failed to load enrollment application.' });
+  }
+}
+
 async function updateEnrollmentStatus(req, res) {
   const enrollmentId = Number(req.params.id);
   const { status, notes = null } = req.body;
@@ -96,6 +186,13 @@ async function updateEnrollmentStatus(req, res) {
     if (enrollment.status === status) {
       await connection.rollback();
       return res.json({ message: 'Enrollment status unchanged.', enrollmentId });
+    }
+
+    if (!canTransitionStatus(enrollment.status, status)) {
+      await connection.rollback();
+      return res.status(400).json({
+        message: `Invalid status transition from ${enrollment.status} to ${status}.`,
+      });
     }
 
     if (enrollment.status !== 'cancelled' && status === 'cancelled') {
@@ -147,6 +244,7 @@ async function updateEnrollmentStatus(req, res) {
 }
 
 module.exports = {
+  getEnrollmentApplication,
   listSections,
   listEnrollments,
   updateEnrollmentStatus,

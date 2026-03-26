@@ -160,7 +160,7 @@ async function createEnrollment(req, res) {
 
     const [existingEnrollment] = await connection.query(
       `SELECT id FROM enrollments
-       WHERE student_id = ? AND school_year = ? AND status IN ('pending', 'enrolled')`,
+       WHERE student_id = ? AND school_year = ? AND status IN ('pending', 'approved', 'enrolled', 'completed')`,
       [studentId, schoolYear]
     );
 

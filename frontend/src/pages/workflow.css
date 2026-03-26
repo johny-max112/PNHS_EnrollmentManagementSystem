@@ -1,0 +1,135 @@
+.workflow-controls {
+  max-width: 300px;
+  margin-bottom: 16px;
+}
+
+.workflow-controls select {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.workflow-table th,
+.workflow-table td {
+  border: 1px solid #e2e8f0;
+  padding: 8px;
+  text-align: left;
+}
+
+.workflow-table th {
+  background: #f8fafc;
+}
+
+.workflow-table select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.workflow-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-view-btn {
+  border: 1px solid #0e7490;
+  border-radius: 8px;
+  background: #f0f9ff;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.application-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 18px;
+}
+
+.application-modal {
+  width: min(860px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.application-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.application-modal-header h2 {
+  margin: 0;
+}
+
+.application-close-btn {
+  border: 0;
+  border-radius: 8px;
+  background: #0f766e;
+  color: #f8fafc;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.application-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 8px 16px;
+}
+
+.application-grid p {
+  margin: 0;
+}
+
+.application-block {
+  margin-top: 14px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+}
+
+.application-block h3 {
+  margin: 0 0 8px;
+}
+
+.application-subjects,
+.application-logs {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+@media (max-width: 860px) {
+  .workflow-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .application-grid {
+    grid-template-columns: 1fr;
+  }
+}

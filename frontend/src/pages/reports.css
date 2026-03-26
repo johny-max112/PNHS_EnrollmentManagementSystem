@@ -1,0 +1,68 @@
+.report-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.report-card {
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  padding: 14px;
+  background: #f8fbff;
+}
+
+.report-card h2 {
+  margin: 0 0 10px;
+}
+
+.report-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.report-card input,
+.report-card select {
+  width: 100%;
+  margin-bottom: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.report-card button {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: #f8fafc;
+  background: linear-gradient(90deg, #0f766e, #0e7490);
+  font-weight: 700;
+}
+
+.report-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.subject-list-compact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.subject-list-compact li {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.subject-list-compact span {
+  font-weight: 700;
+}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 
 const gradeOptions = [7, 8, 9, 10, 11, 12];
@@ -35,6 +36,8 @@ const defaultForm = {
 };
 
 function EnrollmentForm() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState(defaultForm);
   const [tracks, setTracks] = useState([]);
   const [strands, setStrands] = useState([]);
@@ -159,6 +162,12 @@ function EnrollmentForm() {
       setStrands([]);
       setSections([]);
       setSubjects([]);
+
+      if (location.pathname.startsWith('/admin/')) {
+        navigate('/admin/workflow');
+      } else if (location.pathname.startsWith('/registrar/')) {
+        navigate('/registrar/workflow');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Enrollment submission failed.');
     } finally {
