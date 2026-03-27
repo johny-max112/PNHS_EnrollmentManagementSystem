@@ -1,9 +1,15 @@
+const { escapeHtml } = require('./securityUtils');
+
 function htmlShell(title, body) {
+  // Escape title to prevent HTML/JS injection
+  const escapedTitle = escapeHtml(title);
   return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>${title}</title>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapedTitle}</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 24px; color: #111827; }
     h1, h2, h3, p { margin: 0 0 8px; }
@@ -17,23 +23,32 @@ function htmlShell(title, body) {
   </style>
 </head>
 <body>
-  <button onclick="window.print()">Print</button>
+  <button type="button" onclick="window.print()">Print</button>
   ${body}
 </body>
 </html>`;
 }
 
 function buildCoeTemplate(record) {
-  const name = `${record.first_name} ${record.last_name}`;
+  // Escape all user-controlled data to prevent XSS
+  const firstName = escapeHtml(record.first_name);
+  const lastName = escapeHtml(record.last_name);
+  const name = `${firstName} ${lastName}`;
+  const lrn = escapeHtml(record.lrn);
+  const gradeLevel = escapeHtml(record.grade_level);
+  const sectionName = escapeHtml(record.section_name);
+  const schoolYear = escapeHtml(record.school_year);
+  const status = escapeHtml(record.status);
+
   const body = `
     <div class="header">
       <h1>Pateros National High School</h1>
       <p class="muted">Certificate of Enrollment (COE)</p>
     </div>
-    <p>This certifies that <strong>${name}</strong> with LRN <strong>${record.lrn}</strong></p>
-    <p>is officially enrolled in Grade <strong>${record.grade_level}</strong>, Section <strong>${record.section_name}</strong></p>
-    <p>for School Year <strong>${record.school_year}</strong>.</p>
-    <p>Status: <strong>${record.status}</strong></p>
+    <p>This certifies that <strong>${name}</strong> with LRN <strong>${lrn}</strong></p>
+    <p>is officially enrolled in Grade <strong>${gradeLevel}</strong>, Section <strong>${sectionName}</strong></p>
+    <p>for School Year <strong>${schoolYear}</strong>.</p>
+    <p>Status: <strong>${status}</strong></p>
     <div class="signature">
       <div>
         <p>__________________________</p>
@@ -50,27 +65,31 @@ function buildCoeTemplate(record) {
 }
 
 function buildSf1Template(meta, rows) {
+  // Escape all user-controlled data in table rows
   const tableRows = rows
     .map(
       (row, index) => `
         <tr>
           <td>${index + 1}</td>
-          <td>${row.lrn}</td>
-          <td>${row.last_name}, ${row.first_name}</td>
-          <td>${row.status}</td>
-          <td>${row.grade_level}</td>
+          <td>${escapeHtml(row.lrn)}</td>
+          <td>${escapeHtml(row.last_name)}, ${escapeHtml(row.first_name)}</td>
+          <td>${escapeHtml(row.status)}</td>
+          <td>${escapeHtml(row.grade_level)}</td>
         </tr>
       `
     )
     .join('');
+
+  const sectionName = escapeHtml(meta.sectionName);
+  const schoolYear = escapeHtml(meta.schoolYear);
 
   const body = `
     <div class="header">
       <h1>Pateros National High School</h1>
       <p class="muted">School Form 1 (Student Register)</p>
     </div>
-    <h3>Section: ${meta.sectionName}</h3>
-    <p>School Year: ${meta.schoolYear}</p>
+    <h3>Section: ${sectionName}</h3>
+    <p>School Year: ${schoolYear}</p>
     <table>
       <thead>
         <tr>

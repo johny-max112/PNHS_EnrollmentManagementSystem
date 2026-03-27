@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const { buildCoeTemplate, buildSf1Template } = require('../utils/reportTemplates');
 const { drawCoePdf, drawSf1Pdf } = require('../utils/pdfReports');
+const { isValidSchoolYear } = require('../utils/securityUtils');
 
 async function fetchCoeRecord(enrollmentId) {
   const [rows] = await pool.query(
@@ -10,7 +11,8 @@ async function fetchCoeRecord(enrollmentId) {
      FROM enrollments e
      JOIN students s ON s.id = e.student_id
      JOIN sections sec ON sec.id = e.section_id
-     WHERE e.id = ?`,
+     WHERE e.id = ?
+     LIMIT 1`,
     [enrollmentId]
   );
 
@@ -18,7 +20,14 @@ async function fetchCoeRecord(enrollmentId) {
 }
 
 async function fetchSf1Data(sectionId, schoolYear) {
-  const [sectionRows] = await pool.query('SELECT section_name FROM sections WHERE id = ?', [sectionId]);
+  // Validate schoolYear format to prevent injection
+  if (!isValidSchoolYear(schoolYear)) {
+    throw new Error('Invalid school year format.');
+  }
+
+  const [sectionRows] = await pool.query('SELECT section_name FROM sections WHERE id = ? LIMIT 1', [
+    sectionId,
+  ]);
   if (sectionRows.length === 0) {
     return null;
   }
@@ -44,6 +53,10 @@ async function fetchSf1Data(sectionId, schoolYear) {
 async function getCoeReport(req, res) {
   const enrollmentId = Number(req.params.enrollmentId);
 
+  if (!enrollmentId || isNaN(enrollmentId)) {
+    return res.status(400).json({ message: 'Invalid enrollment ID.' });
+  }
+
   try {
     const record = await fetchCoeRecord(enrollmentId);
 
@@ -53,6 +66,7 @@ async function getCoeReport(req, res) {
 
     const html = buildCoeTemplate(record);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     return res.send(html);
   } catch (error) {
     console.error('Failed to generate COE:', error);
@@ -62,6 +76,10 @@ async function getCoeReport(req, res) {
 
 async function getCoePdfReport(req, res) {
   const enrollmentId = Number(req.params.enrollmentId);
+
+  if (!enrollmentId || isNaN(enrollmentId)) {
+    return res.status(400).json({ message: 'Invalid enrollment ID.' });
+  }
 
   try {
     const record = await fetchCoeRecord(enrollmentId);
@@ -85,6 +103,10 @@ async function getSf1Report(req, res) {
     return res.status(400).json({ message: 'sectionId and schoolYear are required.' });
   }
 
+  if (isNaN(sectionId)) {
+    return res.status(400).json({ message: 'Invalid section ID.' });
+  }
+
   try {
     const data = await fetchSf1Data(sectionId, schoolYear);
     if (!data) {
@@ -94,6 +116,7 @@ async function getSf1Report(req, res) {
     const html = buildSf1Template(data.meta, data.rows);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     return res.send(html);
   } catch (error) {
     console.error('Failed to generate SF1:', error);
@@ -107,6 +130,10 @@ async function getSf1PdfReport(req, res) {
 
   if (!sectionId || !schoolYear) {
     return res.status(400).json({ message: 'sectionId and schoolYear are required.' });
+  }
+
+  if (isNaN(sectionId)) {
+    return res.status(400).json({ message: 'Invalid section ID.' });
   }
 
   try {
