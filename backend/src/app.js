@@ -3,8 +3,7 @@ const cors = require('cors');
 const { helmetConfig, apiLimiter, loginLimiter } = require('./middleware/securityMiddleware');
 const enrollmentRoutes = require('./routes/enrollmentRoutes');
 const authRoutes = require('./routes/authRoutes');
-const studentAuthRoutes = require('./routes/studentAuthRoutes');
-const studentRoutes = require('./routes/studentRoutes');
+const documentRoutes = require('./routes/documentRoutes');
 const workflowRoutes = require('./routes/workflowRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -39,11 +38,10 @@ app.get('/health', (_req, res) => {
 
 // Auth routes with stricter rate limiting
 app.use('/api/auth', loginLimiter, authRoutes);
-app.use('/api/student-auth', loginLimiter, studentAuthRoutes);
 
-// Regular API routes
-app.use('/api/student', studentRoutes);
+// Regular API routes (admin/registrar only)
 app.use('/api/enroll', enrollmentRoutes);
+app.use('/api/documents', documentRoutes);
 app.use('/api/workflow', workflowRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);

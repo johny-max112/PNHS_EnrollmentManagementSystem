@@ -1,69 +1,42 @@
 # PNHS Enrollment Backend
 
-## Recommended backend structure
+Backend for the internal PNHS enrollment system where only staff users can operate the platform.
 
-```text
-backend/
-  .env.example
-  package.json
-  sql/
-    schema.sql
-    sample_students.sql
-    student_portal_schema.sql
-  src/
-    app.js
-    server.js
-    config/
-      db.js
-    controllers/
-      authController.js
-      enrollmentController.js
-      workflowController.js
-      reportController.js
-    middleware/
-      authMiddleware.js
-    routes/
-      authRoutes.js
-      enrollmentRoutes.js
-      workflowRoutes.js
-      reportRoutes.js
-    utils/
-      enrollmentRules.js
-      reportTemplates.js
-```
+## Scope
+
+- Admin and registrar users only
+- No student login and no public self-enrollment
+- Document-driven enrollment lifecycle with audit trails
 
 ## Setup
 
-1. Copy `.env.example` to `.env` and update values.
-2. Run the SQL script in `sql/schema.sql`.
-3. If your database already exists, run `sql/student_portal_schema.sql` to add student login support.
-4. Optional: run `sql/sample_students.sql` if you need additional sample enrollment records.
+1. Copy `.env.example` to `.env` and configure DB credentials.
+2. Fresh install: run `sql/schema.sql`.
+3. Existing install from legacy schema: run `sql/migrate_admin_registrar.sql`.
+4. Optional sample records: run `sql/sample_students.sql`.
 5. Install dependencies: `npm install`.
-6. Start API in dev mode: `npm run dev`.
+6. Start in dev mode: `npm run dev`.
 
 ## Default seeded users
 
 - admin / Admin123!
 - registrar / Registrar123!
-- student sample accounts / Student123!
-  Use any seeded student LRN from `students` as the login ID.
 
 ## API Endpoints
 
 - `GET /health`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
-- `POST /api/student-auth/login`
-- `GET /api/student-auth/me`
-- `GET /api/student/enrollment/meta?gradeLevel=11&trackId=1&strandId=1`
-- `POST /api/student/enrollment`
-- `GET /api/student/enrollment/current`
-- `GET /api/student/reports/coe`
-- `GET /api/student/reports/coe/pdf`
-- `GET /api/enroll/meta?gradeLevel=11&trackId=1&strandId=1`
+- `GET /api/enroll/meta?gradeLevel=11&trackId=2&strandId=1`
 - `POST /api/enroll`
+- `GET /api/documents/enrollment/:enrollmentId`
+- `GET /api/documents/check/:enrollmentId`
+- `POST /api/documents/enrollment/:enrollmentId/upload`
+- `PATCH /api/documents/:documentId/verify`
+- `DELETE /api/documents/:documentId`
 - `GET /api/workflow`
 - `GET /api/workflow/sections`
+- `GET /api/workflow/:id/application`
 - `PATCH /api/workflow/:id/status`
 - `GET /api/reports/coe/:enrollmentId`
 - `GET /api/reports/coe/:enrollmentId/pdf`
@@ -73,13 +46,12 @@ backend/
 - `POST /api/admin/users`
 - `PATCH /api/admin/users/:id`
 
-## Access rules
+## Access Rules
 
-- Student: own enrollment submission, own status, own subjects, own section, own COE
-- Registrar: enrollment, workflow, reports
-- Admin: enrollment, workflow, reports, user management
+- Registrar: enrollments, documents, workflow, reports
+- Admin: registrar access plus user management
 
-### Example enrollment payload
+## Example Enrollment Payload
 
 ```json
 {
@@ -87,9 +59,10 @@ backend/
   "firstName": "Juan",
   "lastName": "Dela Cruz",
   "gradeLevel": 11,
-  "trackId": 1,
+  "trackId": 2,
   "strandId": 1,
   "sectionId": 5,
-  "schoolYear": "2026-2027"
+  "schoolYear": "2026-2027",
+  "notes": "Transferee with complete requirements"
 }
 ```

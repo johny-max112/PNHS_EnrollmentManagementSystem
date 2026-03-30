@@ -1,11 +1,11 @@
 const pool = require('../config/db');
 
-const ALLOWED_STATUS = ['pending', 'approved', 'enrolled', 'completed', 'cancelled'];
+const ALLOWED_STATUS = ['pending', 'documents_pending', 'verified', 'enrolled', 'cancelled'];
 const ALLOWED_TRANSITIONS = {
-  pending: ['approved', 'cancelled'],
-  approved: ['enrolled', 'cancelled'],
-  enrolled: ['completed', 'cancelled'],
-  completed: [],
+  pending: ['documents_pending', 'verified', 'enrolled', 'cancelled'],
+  documents_pending: ['verified', 'enrolled', 'cancelled'],
+  verified: ['enrolled', 'documents_pending', 'cancelled'],
+  enrolled: ['cancelled'],
   cancelled: ['pending'],
 };
 
@@ -126,16 +126,37 @@ async function getEnrollmentApplication(req, res) {
       [enrollmentId]
     );
 
+    const [documents] = await pool.query(
+      `SELECT
+        ed.id,
+        dt.code,
+        dt.name,
+        ed.status,
+        ed.rejection_reason,
+        ed.uploaded_at,
+        ed.verified_at,
+        u1.full_name AS uploaded_by_name,
+        u2.full_name AS verified_by_name
+      FROM enrollment_documents ed
+      JOIN document_types dt ON dt.id = ed.document_type_id
+      LEFT JOIN users u1 ON u1.id = ed.uploaded_by
+      LEFT JOIN users u2 ON u2.id = ed.verified_by
+      WHERE ed.enrollment_id = ?
+      ORDER BY dt.code`,
+      [enrollmentId]
+    );
+
     const [logs] = await pool.query(
       `SELECT
         l.id,
-        l.old_status,
-        l.new_status,
+        l.action,
+        l.old_value,
+        l.new_value,
         l.notes,
         l.changed_at,
         u.full_name AS changed_by_name,
         u.role AS changed_by_role
-      FROM enrollment_status_logs l
+      FROM enrollment_audit_logs l
       LEFT JOIN users u ON u.id = l.changed_by
       WHERE l.enrollment_id = ?
       ORDER BY l.changed_at DESC, l.id DESC`,
@@ -145,7 +166,7 @@ async function getEnrollmentApplication(req, res) {
     return res.json({
       application: {
         ...application,
-        documents: [],
+        documents,
       },
       subjects,
       logs,
@@ -195,6 +216,30 @@ async function updateEnrollmentStatus(req, res) {
       });
     }
 
+    if (status === 'enrolled') {
+      const [requiredDocsRows] = await connection.query(
+        `SELECT COUNT(*) AS total
+         FROM document_types
+         WHERE is_active = 1
+           AND FIND_IN_SET((SELECT grade_level FROM enrollments WHERE id = ?), required_for_grades) > 0`,
+        [enrollmentId]
+      );
+
+      const [verifiedDocsRows] = await connection.query(
+        `SELECT COUNT(DISTINCT document_type_id) AS total
+         FROM enrollment_documents
+         WHERE enrollment_id = ? AND status = 'verified'`,
+        [enrollmentId]
+      );
+
+      const requiredDocs = Number(requiredDocsRows[0]?.total || 0);
+      const verifiedDocs = Number(verifiedDocsRows[0]?.total || 0);
+
+      if (verifiedDocs < requiredDocs) {
+        throw new Error('Cannot set status to enrolled until all required documents are verified.');
+      }
+    }
+
     if (enrollment.status !== 'cancelled' && status === 'cancelled') {
       await connection.query(
         `UPDATE sections
@@ -226,9 +271,16 @@ async function updateEnrollmentStatus(req, res) {
 
     await connection.query('UPDATE enrollments SET status = ? WHERE id = ?', [status, enrollmentId]);
 
+    if (status === 'verified' || status === 'enrolled') {
+      await connection.query('UPDATE enrollments SET verified_by = ? WHERE id = ?', [
+        req.user.userId,
+        enrollmentId,
+      ]);
+    }
+
     await connection.query(
-      `INSERT INTO enrollment_status_logs (enrollment_id, old_status, new_status, changed_by, notes)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO enrollment_audit_logs (enrollment_id, action, old_value, new_value, changed_by, notes)
+       VALUES (?, 'Status updated', ?, ?, ?, ?)`,
       [enrollmentId, enrollment.status, status, req.user.userId, notes]
     );
 

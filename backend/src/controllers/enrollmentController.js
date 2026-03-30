@@ -15,9 +15,9 @@ async function getMetadata(req, res) {
        FROM sections
        WHERE grade_level = ?
          AND is_active = 1
-         AND (? < 11 OR strand_id IS NULL OR strand_id = ?)
+         AND ((? < 11 AND strand_id IS NULL) OR (? >= 11 AND strand_id = ?))
        ORDER BY section_name`,
-      [gradeLevel, gradeLevel, strandId]
+      [gradeLevel, gradeLevel, gradeLevel, strandId]
     );
 
     let tracks = [];
@@ -151,16 +151,16 @@ async function createEnrollment(req, res) {
       );
     } else {
       const [studentInsert] = await connection.query(
-        `INSERT INTO students (lrn, first_name, last_name, middle_name, suffix)
-         VALUES (?, ?, ?, ?, ?)`,
-        [lrn, firstName, lastName, middleName, suffix]
+        `INSERT INTO students (lrn, first_name, last_name, middle_name, suffix, created_by)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [lrn, firstName, lastName, middleName, suffix, req.user.userId]
       );
       studentId = studentInsert.insertId;
     }
 
     const [existingEnrollment] = await connection.query(
       `SELECT id FROM enrollments
-       WHERE student_id = ? AND school_year = ? AND status IN ('pending', 'approved', 'enrolled', 'completed')`,
+       WHERE student_id = ? AND school_year = ? AND status IN ('pending', 'documents_pending', 'verified', 'enrolled')`,
       [studentId, schoolYear]
     );
 
@@ -170,8 +170,8 @@ async function createEnrollment(req, res) {
 
     const [enrollmentInsert] = await connection.query(
       `INSERT INTO enrollments (
-        student_id, grade_level, track_id, strand_id, section_id, school_year, status
-      ) VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
+        student_id, grade_level, track_id, strand_id, section_id, school_year, status, enrolled_by
+      ) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)`,
       [
         studentId,
         normalizedGradeLevel,
@@ -179,14 +179,15 @@ async function createEnrollment(req, res) {
         normalizedStrandId,
         normalizedSectionId,
         schoolYear,
+        req.user.userId,
       ]
     );
 
     const enrollmentId = enrollmentInsert.insertId;
 
     await connection.query(
-      `INSERT INTO enrollment_status_logs (enrollment_id, old_status, new_status, changed_by, notes)
-       VALUES (?, NULL, 'pending', ?, 'Initial enrollment submission')`,
+      `INSERT INTO enrollment_audit_logs (enrollment_id, action, old_value, new_value, changed_by, notes)
+       VALUES (?, 'Enrollment created', NULL, 'pending', ?, 'Initial enrollment submission')`,
       [enrollmentId, req.user.userId]
     );
 

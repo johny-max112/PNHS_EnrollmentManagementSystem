@@ -10,6 +10,12 @@ function authenticate(req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Ensure only admin/registrar roles can access the system
+    if (!['admin', 'registrar'].includes(payload.role)) {
+      return res.status(403).json({ message: 'Forbidden: invalid role for this system.' });
+    }
+    
     req.user = payload;
     return next();
   } catch (error) {
