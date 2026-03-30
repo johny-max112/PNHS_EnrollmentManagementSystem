@@ -1,0 +1,122 @@
+.login-shell {
+	min-height: 100vh;
+	max-width: 100%;
+	padding: 28px 16px 40px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.login-branding {
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.login-logo {
+	width: 76px;
+	height: 76px;
+	object-fit: contain;
+	display: block;
+	margin: 0 auto 10px;
+}
+
+.school-name {
+	margin: 0;
+	font-size: clamp(1.1rem, 1.9vw, 1.9rem);
+	font-weight: 800;
+	color: #111827;
+}
+
+.school-address {
+	margin: 3px 0 0;
+	color: #6b7280;
+	font-size: 0.92rem;
+}
+
+.school-system {
+	margin: 2px 0 0;
+	color: #6b7280;
+	font-size: 0.92rem;
+}
+
+.auth-card.login-card {
+	width: min(100%, 430px);
+	margin: 0;
+	padding: 24px 22px;
+	background: #f8fafc;
+	border: 1px solid #dbe3ef;
+	border-radius: 12px;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.login-card h2 {
+	margin: 0;
+	text-align: center;
+	font-size: 1.2rem;
+	font-weight: 800;
+	color: #0f172a;
+}
+
+.login-role-note {
+	margin: 6px 0 18px;
+	text-align: center;
+	color: #64748b;
+	font-size: 0.88rem;
+}
+
+.login-card label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: #1f2937;
+}
+
+.login-card input {
+	width: 100%;
+	padding: 10px 12px;
+	margin-bottom: 12px;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	background: #ffffff;
+	color: #0f172a;
+	font-size: 0.92rem;
+}
+
+.login-card input:focus {
+	outline: 2px solid #bfdbfe;
+	border-color: #2563eb;
+}
+
+.login-card button {
+	margin-top: 6px;
+	width: 100%;
+	border: 0;
+	border-radius: 8px;
+	padding: 10px 14px;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #ffffff;
+	background: #1e40af;
+	cursor: pointer;
+}
+
+.login-card button:hover {
+	background: #1d4ed8;
+}
+
+.login-card button:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+	.login-shell {
+		padding-top: 22px;
+	}
+
+	.auth-card.login-card {
+		padding: 20px 16px;
+	}
+}

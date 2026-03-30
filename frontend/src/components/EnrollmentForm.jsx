@@ -4,8 +4,6 @@ import api from '../api/client';
 
 const gradeOptions = [7, 8, 9, 10, 11, 12];
 
-const schoolYearInputPattern = '\\d{4}\\s*[-–—]\\s*\\d{4}';
-
 function normalizeSchoolYear(value = '') {
   return value
     .replace(/[–—−]/g, '-')
@@ -95,6 +93,12 @@ function EnrollmentForm() {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
+    if (name === 'lrn') {
+      const normalized = value.replace(/\D/g, '').slice(0, 12);
+      setFormData((prev) => ({ ...prev, lrn: normalized }));
+      return;
+    }
+
     if (name === 'gradeLevel') {
       const nextIsSHS = Number(value) >= 11;
       setFormData((prev) => ({
@@ -139,6 +143,12 @@ function EnrollmentForm() {
     setSuccess('');
 
     const normalizedSchoolYear = normalizeSchoolYear(formData.schoolYear);
+    if (!/^\d{12}$/.test(formData.lrn)) {
+      setError('LRN must be exactly 12 digits (example: 136885100800).');
+      setSubmitting(false);
+      return;
+    }
+
     if (!isValidSchoolYear(normalizedSchoolYear)) {
       setError('School year must be in YYYY-YYYY format, and the second year must be the next year.');
       setSubmitting(false);
@@ -164,9 +174,9 @@ function EnrollmentForm() {
       setSubjects([]);
 
       if (location.pathname.startsWith('/admin/')) {
-        navigate('/admin/workflow');
+        navigate(`/admin/documents?enrollmentId=${data.enrollmentId}`);
       } else if (location.pathname.startsWith('/registrar/')) {
-        navigate('/registrar/workflow');
+        navigate(`/registrar/documents?enrollmentId=${data.enrollmentId}`);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Enrollment submission failed.');
@@ -188,7 +198,6 @@ function EnrollmentForm() {
           type="text"
           inputMode="numeric"
           maxLength={12}
-          pattern="\\d{12}"
           placeholder="12-digit LRN"
           value={formData.lrn}
           onChange={handleChange}
@@ -290,7 +299,6 @@ function EnrollmentForm() {
           id="schoolYear"
           name="schoolYear"
           type="text"
-          pattern={schoolYearInputPattern}
           title="Use format YYYY-YYYY (example: 2026-2027)."
           value={formData.schoolYear}
           onChange={handleChange}

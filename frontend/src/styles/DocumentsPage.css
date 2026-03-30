@@ -1,0 +1,141 @@
+.documents-shell {
+  width: 100%;
+}
+
+.documents-toolbar {
+  max-width: 720px;
+  margin-bottom: 14px;
+}
+
+.documents-toolbar label {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 7px;
+}
+
+.documents-toolbar select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+  background: #f8fafc;
+}
+
+.documents-summary {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.documents-summary p {
+  margin: 5px 0;
+}
+
+.documents-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.documents-table th,
+.documents-table td {
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.documents-table th {
+  background: #f1f5f9;
+}
+
+.doc-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.doc-badge.missing {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.doc-badge.uploaded {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.doc-badge.verified {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.doc-badge.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.doc-note {
+  margin: 8px 0 0;
+  color: #991b1b;
+}
+
+.doc-upload-block {
+  display: grid;
+  gap: 8px;
+}
+
+.doc-upload-block input[type='file'] {
+  max-width: 290px;
+}
+
+.doc-upload-block button,
+.doc-actions button {
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(90deg, #0f766e, #0e7490);
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 11px;
+  cursor: pointer;
+}
+
+.doc-actions {
+  display: grid;
+  gap: 8px;
+  max-width: 310px;
+}
+
+.doc-actions input {
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  padding: 8px;
+  background: #f8fafc;
+}
+
+.doc-actions .danger {
+  background: #b91c1c;
+}
+
+.doc-actions .ghost {
+  background: #334155;
+}
+
+.doc-muted {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .documents-table {
+    min-width: 800px;
+  }
+}

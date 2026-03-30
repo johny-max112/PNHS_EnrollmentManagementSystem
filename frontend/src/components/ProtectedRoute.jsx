@@ -1,10 +1,6 @@
 import { Navigate } from 'react-router-dom';
 
 function getHomePath(role) {
-  if (role === 'student') {
-    return '/student/dashboard';
-  }
-
   if (role === 'admin') {
     return '/admin/enroll';
   }

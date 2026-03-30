@@ -1,0 +1,52 @@
+.workflow-controls {
+  max-width: 300px;
+  margin-bottom: 16px;
+}
+
+.workflow-controls select {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.workflow-table th,
+.workflow-table td {
+  border: 1px solid #e2e8f0;
+  padding: 8px;
+  text-align: left;
+}
+
+.workflow-table th {
+  background: #f8fafc;
+}
+
+.workflow-table select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.workflow-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 860px) {
+  .workflow-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

@@ -1,15 +1,14 @@
-import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import PortalHomePage from './pages/PortalHomePage'
 import EnrollmentPage from './pages/EnrollmentPage'
-import StudentEnrollmentPage from './pages/StudentEnrollmentPage'
-import StudentDashboardPage from './pages/StudentDashboardPage'
 import LoginPage from './pages/LoginPage'
-import StudentLoginPage from './pages/StudentLoginPage'
 import WorkflowPage from './pages/WorkflowPage'
 import ReportsPage from './pages/ReportsPage'
 import AdminUsersPage from './pages/AdminUsersPage'
+import DocumentsPage from './pages/DocumentsPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import Sidebar from './components/Sidebar'
 import {
   clearStoredAuthByRole,
   getRoleFromPath,
@@ -18,18 +17,9 @@ import {
   storeAuthByRole,
 } from './utils/auth'
 import './App.css'
-import './pages/base.css'
-import './pages/enrollment.css'
-import './pages/workflow.css'
-import './pages/reports.css'
-import './pages/portal.css'
-import './pages/admin.css'
+import './styles/sidebar.css'
 
 function getHomePath(role) {
-  if (role === 'student') {
-    return '/student/dashboard'
-  }
-
   if (role === 'admin') {
     return '/admin/workflow'
   }
@@ -46,9 +36,6 @@ function App() {
   const location = useLocation()
 
   const [legacyAuth] = useState(getStoredAuth)
-  const [studentAuth, setStudentAuth] = useState(
-    () => getStoredAuthByRole('student') || (legacyAuth?.user?.role === 'student' ? legacyAuth : null)
-  )
   const [adminAuth, setAdminAuth] = useState(
     () => getStoredAuthByRole('admin') || (legacyAuth?.user?.role === 'admin' ? legacyAuth : null)
   )
@@ -58,10 +45,6 @@ function App() {
 
   const activeRole = useMemo(() => getRoleFromPath(location.pathname), [location.pathname])
   const activeAuth = useMemo(() => {
-    if (activeRole === 'student') {
-      return studentAuth
-    }
-
     if (activeRole === 'admin') {
       return adminAuth
     }
@@ -71,9 +54,9 @@ function App() {
     }
 
     return null
-  }, [activeRole, studentAuth, adminAuth, registrarAuth])
+  }, [activeRole, adminAuth, registrarAuth])
 
-  const roleLabel = useMemo(() => activeAuth?.user?.role?.toUpperCase() || '', [activeAuth])
+  const hasSidebar = Boolean(activeAuth?.token && activeRole)
 
   const handleLogin = (role, data) => {
     if (data?.user?.role !== role) {
@@ -85,9 +68,7 @@ function App() {
       user: data.user,
     }
 
-    if (role === 'student') {
-      setStudentAuth(authData)
-    } else if (role === 'admin') {
+    if (role === 'admin') {
       setAdminAuth(authData)
     } else if (role === 'registrar') {
       setRegistrarAuth(authData)
@@ -98,9 +79,7 @@ function App() {
   }
 
   const handleLogout = (role) => {
-    if (role === 'student') {
-      setStudentAuth(null)
-    } else if (role === 'admin') {
+    if (role === 'admin') {
       setAdminAuth(null)
     } else if (role === 'registrar') {
       setRegistrarAuth(null)
@@ -112,38 +91,17 @@ function App() {
 
   return (
     <>
-      <header className="topbar">
-        <p>PNHS Enrollment Management System</p>
-        {activeRole === 'student' && studentAuth?.token && (
-          <nav className="topnav">
-            <NavLink to="/student/dashboard">My Status</NavLink>
-            <NavLink to="/student/enrollment">Enrollment</NavLink>
-            <span>{roleLabel}</span>
-            <button type="button" onClick={() => handleLogout('student')}>Logout</button>
-          </nav>
-        )}
-        {activeRole === 'admin' && adminAuth?.token && (
-          <nav className="topnav">
-            <NavLink to="/admin/enroll">Enrollment</NavLink>
-            <NavLink to="/admin/workflow">Workflow</NavLink>
-            <NavLink to="/admin/reports">Reports</NavLink>
-            <NavLink to="/admin/users">Users</NavLink>
-            <span>{roleLabel}</span>
-            <button type="button" onClick={() => handleLogout('admin')}>Logout</button>
-          </nav>
-        )}
-        {activeRole === 'registrar' && registrarAuth?.token && (
-          <nav className="topnav">
-            <NavLink to="/registrar/enroll">Enrollment</NavLink>
-            <NavLink to="/registrar/workflow">Workflow</NavLink>
-            <NavLink to="/registrar/reports">Reports</NavLink>
-            <span>{roleLabel}</span>
-            <button type="button" onClick={() => handleLogout('registrar')}>Logout</button>
-          </nav>
-        )}
-      </header>
+      {activeRole && (
+        <Sidebar
+          auth={activeAuth}
+          role={activeRole}
+          onLogout={handleLogout}
+        />
+      )}
 
-      <Routes>
+      <div className={`app-layout ${hasSidebar ? 'with-sidebar' : ''}`}>
+        <div className="main-content">
+          <Routes>
         <Route path="/" element={<PortalHomePage />} />
         <Route
           path="/admin/login"
@@ -153,28 +111,19 @@ function App() {
           path="/registrar/login"
           element={<LoginPage expectedRole="registrar" onLogin={(data) => handleLogin('registrar', data)} />}
         />
-        <Route path="/student/login" element={<StudentLoginPage onLogin={(data) => handleLogin('student', data)} />} />
-        <Route
-          path="/student/dashboard"
-          element={
-            <ProtectedRoute auth={studentAuth} allowedRoles={['student']}>
-              <StudentDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/student/enrollment"
-          element={
-            <ProtectedRoute auth={studentAuth} allowedRoles={['student']}>
-              <StudentEnrollmentPage />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/admin/enroll"
           element={
             <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
               <EnrollmentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/documents"
+          element={
+            <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
+              <DocumentsPage />
             </ProtectedRoute>
           }
         />
@@ -211,6 +160,14 @@ function App() {
           }
         />
         <Route
+          path="/registrar/documents"
+          element={
+            <ProtectedRoute auth={registrarAuth} allowedRoles={['registrar']}>
+              <DocumentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/registrar/workflow"
           element={
             <ProtectedRoute auth={registrarAuth} allowedRoles={['registrar']}>
@@ -232,7 +189,9 @@ function App() {
             <Navigate to="/" replace />
           }
         />
-      </Routes>
+        </Routes>
+        </div>
+      </div>
     </>
   )
 }

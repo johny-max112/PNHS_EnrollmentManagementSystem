@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
+import '../styles/base.css';
+import '../styles/ReportsPage.css';
 
 function ReportsPage() {
   const [enrollmentId, setEnrollmentId] = useState('');

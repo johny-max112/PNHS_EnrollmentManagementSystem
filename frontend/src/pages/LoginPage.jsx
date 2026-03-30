@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import api from '../api/client';
+import '../styles/base.css';
+import '../styles/LoginPage.css';
 
 function LoginPage({ onLogin, expectedRole = 'registrar' }) {
   const isAdmin = expectedRole === 'admin';
-  const [username, setUsername] = useState(isAdmin ? 'admin' : 'registrar');
-  const [password, setPassword] = useState(isAdmin ? 'Admin123!' : 'Registrar123!');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -30,13 +32,20 @@ function LoginPage({ onLogin, expectedRole = 'registrar' }) {
   };
 
   return (
-    <main className="page-shell">
-      <form className="enroll-card auth-card" onSubmit={handleSubmit}>
-        <h1>{isAdmin ? 'PNHS Admin Login' : 'PNHS Registrar Login'}</h1>
-        <p>
+    <main className="page-shell login-shell">
+      <section className="login-branding" aria-label="School branding">
+        <img className="login-logo" src="/logo_pnhs.png" alt="Pateros National High School logo" />
+        <h1 className="school-name">Pateros National High School</h1>
+        <p className="school-address">San Pedro, Pateros</p>
+        <p className="school-system">Enrollment Management System</p>
+      </section>
+
+      <form className="enroll-card auth-card login-card" onSubmit={handleSubmit}>
+        <h2>Login</h2>
+        <p className="login-role-note">
           {isAdmin
-            ? 'Use your admin account for full system and user management access.'
-            : 'Use your registrar account to manage enrollment workflows and reports.'}
+            ? 'Admin account access'
+            : 'Registrar account access'}
         </p>
 
         <label htmlFor="username">Username</label>

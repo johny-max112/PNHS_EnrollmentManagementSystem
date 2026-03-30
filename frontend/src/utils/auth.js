@@ -1,6 +1,5 @@
 const LEGACY_AUTH_KEY = 'pnhs-auth';
 const AUTH_KEYS = {
-  student: 'pnhs-auth-student',
   admin: 'pnhs-auth-admin',
   registrar: 'pnhs-auth-registrar',
 };
@@ -19,14 +18,10 @@ function parseStoredAuth(raw, key) {
 }
 
 function isSupportedRole(role) {
-  return role === 'student' || role === 'admin' || role === 'registrar';
+  return role === 'admin' || role === 'registrar';
 }
 
 export function getRoleFromPath(pathname) {
-  if (pathname.startsWith('/student')) {
-    return 'student';
-  }
-
   if (pathname.startsWith('/admin')) {
     return 'admin';
   }
