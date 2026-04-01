@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
 import '../styles/base.css';
-import '../styles/WorkflowPage.css';
+import '../styles/DashboardPage.css';
 
 const statusOptions = ['pending', 'documents_pending', 'verified', 'enrolled', 'cancelled'];
 
-function WorkflowPage() {
+function DashboardPage() {
   const [enrollments, setEnrollments] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,10 +18,10 @@ function WorkflowPage() {
 
     try {
       const params = statusFilter ? { status: statusFilter } : {};
-      const { data } = await api.get('/api/workflow', { params });
+      const { data } = await api.get('/api/dashboard', { params });
       setEnrollments(data.enrollments || []);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load workflow records.');
+      setError(err.response?.data?.message || 'Failed to load dashboard records.');
     } finally {
       setLoading(false);
     }
@@ -36,9 +36,9 @@ function WorkflowPage() {
     setError('');
 
     try {
-      const { data } = await api.patch(`/api/workflow/${enrollmentId}/status`, {
+      const { data } = await api.patch(`/api/dashboard/${enrollmentId}/status`, {
         status: nextStatus,
-        notes: `Updated in workflow screen to ${nextStatus}`,
+        notes: `Updated in dashboard screen to ${nextStatus}`,
       });
       setMessage(data.message);
       await loadEnrollments();
@@ -50,7 +50,7 @@ function WorkflowPage() {
   return (
     <main className="page-shell">
       <section className="enroll-card">
-        <h1>Enrollment Status Workflow</h1>
+        <h1>Enrollment Status Dashboard</h1>
         <p>Review enrollment records and update lifecycle status.</p>
 
         <div className="workflow-controls">
@@ -117,4 +117,4 @@ function WorkflowPage() {
   );
 }
 
-export default WorkflowPage;
+export default DashboardPage;

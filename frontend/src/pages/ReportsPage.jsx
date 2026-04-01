@@ -13,7 +13,7 @@ function ReportsPage() {
   useEffect(() => {
     const loadSections = async () => {
       try {
-        const { data } = await api.get('/api/workflow/sections');
+        const { data } = await api.get('/api/dashboard/sections');
         setSections(data.sections || []);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load section list.');

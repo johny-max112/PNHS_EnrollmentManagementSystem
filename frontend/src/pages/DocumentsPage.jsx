@@ -38,7 +38,7 @@ function DocumentsPage() {
     setError('');
 
     try {
-      const { data } = await api.get('/api/workflow');
+      const { data } = await api.get('/api/dashboard');
       const list = data.enrollments || [];
       setEnrollments(list);
 

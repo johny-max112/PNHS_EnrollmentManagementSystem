@@ -4,7 +4,7 @@ const {
 	listSections,
 	listEnrollments,
 	updateEnrollmentStatus,
-} = require('../controllers/workflowController');
+} = require('../controllers/dashboardController');
 const { authenticate, allowRoles } = require('../middleware/authMiddleware');
 
 const router = express.Router();

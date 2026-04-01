@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import PortalHomePage from './pages/PortalHomePage'
 import EnrollmentPage from './pages/EnrollmentPage'
 import LoginPage from './pages/LoginPage'
-import WorkflowPage from './pages/WorkflowPage'
+import DashboardPage from './pages/DashboardPage'
 import ReportsPage from './pages/ReportsPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import DocumentsPage from './pages/DocumentsPage'
@@ -21,11 +21,11 @@ import './styles/sidebar.css'
 
 function getHomePath(role) {
   if (role === 'admin') {
-    return '/admin/workflow'
+    return '/admin/dashboard'
   }
 
   if (role === 'registrar') {
-    return '/registrar/workflow'
+    return '/registrar/dashboard'
   }
 
   return '/'
@@ -128,10 +128,10 @@ function App() {
           }
         />
         <Route
-          path="/admin/workflow"
+          path="/admin/dashboard"
           element={
             <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
-              <WorkflowPage />
+              <DashboardPage />
             </ProtectedRoute>
           }
         />
@@ -168,10 +168,10 @@ function App() {
           }
         />
         <Route
-          path="/registrar/workflow"
+          path="/registrar/dashboard"
           element={
             <ProtectedRoute auth={registrarAuth} allowedRoles={['registrar']}>
-              <WorkflowPage />
+              <DashboardPage />
             </ProtectedRoute>
           }
         />

@@ -4,7 +4,7 @@ const { helmetConfig, apiLimiter, loginLimiter } = require('./middleware/securit
 const enrollmentRoutes = require('./routes/enrollmentRoutes');
 const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
-const workflowRoutes = require('./routes/workflowRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
@@ -42,7 +42,7 @@ app.use('/api/auth', loginLimiter, authRoutes);
 // Regular API routes (admin/registrar only)
 app.use('/api/enroll', enrollmentRoutes);
 app.use('/api/documents', documentRoutes);
-app.use('/api/workflow', workflowRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 

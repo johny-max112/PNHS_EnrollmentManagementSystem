@@ -1,9 +1,7 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import '../styles/sidebar.css'
 
 export default function Sidebar({ auth, role, onLogout }) {
-  const navigate = useNavigate()
-
   if (!auth?.token) {
     return null
   }
@@ -12,17 +10,17 @@ export default function Sidebar({ auth, role, onLogout }) {
 
   if (role === 'admin') {
     navItems.push(
-      { label: 'Enrollment', path: '/admin/enroll' },
-      { label: 'Documents', path: '/admin/documents' },
-      { label: 'Workflow', path: '/admin/workflow' },
+      { label: 'Dashboard', path: '/admin/dashboard' },
+      { label: 'Student Enrollment', path: '/admin/enroll' },
+      { label: 'Requirement Validator', path: '/admin/documents' },
       { label: 'Reports', path: '/admin/reports' },
       { label: 'Users', path: '/admin/users' }
     )
   } else if (role === 'registrar') {
     navItems.push(
-      { label: 'Enrollment', path: '/registrar/enroll' },
-      { label: 'Documents', path: '/registrar/documents' },
-      { label: 'Workflow', path: '/registrar/workflow' },
+      { label: 'Dashboard', path: '/registrar/dashboard' },
+      { label: 'Student Enrollment', path: '/registrar/enroll' },
+      { label: 'Requirement Validator', path: '/registrar/documents' },
       { label: 'Reports', path: '/registrar/reports' }
     )
   }
@@ -30,7 +28,11 @@ export default function Sidebar({ auth, role, onLogout }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h2>PNHS</h2>
+        <img className="sidebar-logo" src="/logo_pnhs.png" alt="PNHS logo" />
+        <div className="sidebar-brand-text">
+          <h2>PNHS</h2>
+          <p>Enrollment Management System</p>
+        </div>
       </div>
 
       <nav className="sidebar-nav">
@@ -47,6 +49,7 @@ export default function Sidebar({ auth, role, onLogout }) {
 
       <div className="sidebar-footer">
         <div className="user-info">
+          <span className="user-label">Logged in as</span>
           <span className="user-role">{role?.toUpperCase()}</span>
         </div>
         <button type="button" className="logout-btn" onClick={() => onLogout(role)}>
