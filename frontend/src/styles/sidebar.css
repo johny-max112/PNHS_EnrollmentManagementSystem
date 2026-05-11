@@ -4,7 +4,7 @@
   top: 0;
   width: 272px;
   height: 100vh;
-  background-color: #1c398e;
+  background-color: var(--brand-navy);
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -66,15 +66,15 @@
 }
 
 .sidebar-nav-item:hover {
-  background-color: #eac122;
-  color: #1c398e;
-  border-left-color: #eac122;
+  background-color: var(--brand-yellow);
+  color: var(--brand-navy);
+  border-left-color: var(--brand-yellow);
 }
 
 .sidebar-nav-item.active {
-  background-color: #eac122;
-  color: #1c398e;
-  border-left-color: #eac122;
+  background-color: var(--brand-yellow);
+  color: var(--brand-navy);
+  border-left-color: var(--brand-yellow);
   font-weight: 500;
 }
 

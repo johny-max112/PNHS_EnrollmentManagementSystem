@@ -1,58 +1,58 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 
-const gradeOptions = [7, 8, 9, 10, 11, 12];
-
-function normalizeSchoolYear(value = '') {
-  return value
-    .replace(/[–—−]/g, '-')
-    .replace(/\s*-\s*/g, '-')
-    .trim();
-}
-
-function isValidSchoolYear(value) {
-  const match = normalizeSchoolYear(value).match(/^(\d{4})-(\d{4})$/);
-  if (!match) {
-    return false;
-  }
-
-  const startYear = Number(match[1]);
-  const endYear = Number(match[2]);
-  return endYear === startYear + 1;
-}
-
-const defaultForm = {
+const initialForm = {
   lrn: '',
   firstName: '',
   lastName: '',
-  gradeLevel: '',
+  middleName: '',
+  suffix: '',
+  gradeLevel: '7',
   trackId: '',
   strandId: '',
   sectionId: '',
-  schoolYear: '2026-2027',
+  schoolYear: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
 };
 
 function EnrollmentForm() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [formData, setFormData] = useState(defaultForm);
+  const [formData, setFormData] = useState(initialForm);
   const [tracks, setTracks] = useState([]);
   const [strands, setStrands] = useState([]);
   const [sections, setSections] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const isSHS = useMemo(() => Number(formData.gradeLevel) >= 11, [formData.gradeLevel]);
 
-  const loadMetadata = async (params) => {
+  const updateField = (key, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const loadMetadata = async (gradeLevel, trackId, strandId) => {
+    if (!gradeLevel) {
+      return;
+    }
+
     setLoadingMeta(true);
     setError('');
 
     try {
+      const params = { gradeLevel: Number(gradeLevel) };
+
+      if (trackId) {
+        params.trackId = Number(trackId);
+      }
+
+      if (strandId) {
+        params.strandId = Number(strandId);
+      }
+
       const { data } = await api.get('/api/enroll/meta', { params });
       setTracks(data.tracks || []);
       setStrands(data.strands || []);
@@ -63,273 +63,268 @@ function EnrollmentForm() {
       setStrands([]);
       setSections([]);
       setSubjects([]);
-      setError(err.response?.data?.message || 'Failed to load grade-level options.');
+      setError(err.response?.data?.message || 'Failed to load enrollment options.');
     } finally {
       setLoadingMeta(false);
     }
   };
 
   useEffect(() => {
-    const gradeLevel = Number(formData.gradeLevel);
-    if (!gradeLevel) {
-      setTracks([]);
-      setStrands([]);
-      setSections([]);
-      setSubjects([]);
-      return;
-    }
+    const gradeLevel = formData.gradeLevel;
+    const trackId = isSHS ? formData.trackId : '';
+    const strandId = isSHS ? formData.strandId : '';
 
-    const query = { gradeLevel };
-    if (isSHS && formData.trackId) {
-      query.trackId = formData.trackId;
-    }
-    if (isSHS && formData.strandId) {
-      query.strandId = formData.strandId;
-    }
-
-    loadMetadata(query);
+    loadMetadata(gradeLevel, trackId, strandId);
   }, [formData.gradeLevel, formData.trackId, formData.strandId, isSHS]);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const onGradeChange = (value) => {
+    const nextIsSHS = Number(value) >= 11;
 
-    if (name === 'lrn') {
-      const normalized = value.replace(/\D/g, '').slice(0, 12);
-      setFormData((prev) => ({ ...prev, lrn: normalized }));
-      return;
-    }
-
-    if (name === 'gradeLevel') {
-      const nextIsSHS = Number(value) >= 11;
-      setFormData((prev) => ({
-        ...prev,
-        gradeLevel: value,
-        trackId: nextIsSHS ? prev.trackId : '',
-        strandId: nextIsSHS ? prev.strandId : '',
-        sectionId: '',
-      }));
-      return;
-    }
-
-    if (name === 'trackId') {
-      setFormData((prev) => ({
-        ...prev,
-        trackId: value,
-        strandId: '',
-        sectionId: '',
-      }));
-      return;
-    }
-
-    if (name === 'strandId') {
-      setFormData((prev) => ({ ...prev, strandId: value, sectionId: '' }));
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSchoolYearBlur = () => {
     setFormData((prev) => ({
       ...prev,
-      schoolYear: normalizeSchoolYear(prev.schoolYear),
+      gradeLevel: value,
+      trackId: nextIsSHS ? prev.trackId : '',
+      strandId: nextIsSHS ? prev.strandId : '',
+      sectionId: '',
     }));
+
+    setMessage('');
+    setError('');
+  };
+
+  const onTrackChange = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      trackId: value,
+      strandId: '',
+      sectionId: '',
+    }));
+
+    setMessage('');
+    setError('');
+  };
+
+  const onStrandChange = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      strandId: value,
+      sectionId: '',
+    }));
+
+    setMessage('');
+    setError('');
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitting(true);
+    setMessage('');
     setError('');
-    setSuccess('');
 
-    const normalizedSchoolYear = normalizeSchoolYear(formData.schoolYear);
-    if (!/^\d{12}$/.test(formData.lrn)) {
-      setError('LRN must be exactly 12 digits (example: 136885100800).');
-      setSubmitting(false);
+    if (!/^\d{12}$/.test(formData.lrn.trim())) {
+      setError('LRN must be exactly 12 digits.');
       return;
     }
 
-    if (!isValidSchoolYear(normalizedSchoolYear)) {
-      setError('School year must be in YYYY-YYYY format, and the second year must be the next year.');
-      setSubmitting(false);
+    if (isSHS && (!formData.trackId || !formData.strandId)) {
+      setError('Track and strand are required for Grades 11 and 12.');
       return;
     }
+
+    if (!formData.sectionId) {
+      setError('Please select an available section.');
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const payload = {
-        ...formData,
+        lrn: formData.lrn.trim(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        middleName: formData.middleName.trim() || null,
+        suffix: formData.suffix.trim() || null,
         gradeLevel: Number(formData.gradeLevel),
         trackId: formData.trackId ? Number(formData.trackId) : null,
         strandId: formData.strandId ? Number(formData.strandId) : null,
         sectionId: Number(formData.sectionId),
-        schoolYear: normalizedSchoolYear,
+        schoolYear: formData.schoolYear.trim(),
       };
 
       const { data } = await api.post('/api/enroll', payload);
-      setSuccess(`${data.message} Enrollment ID: ${data.enrollmentId}`);
-      setFormData(defaultForm);
-      setTracks([]);
-      setStrands([]);
-      setSections([]);
-      setSubjects([]);
 
-      if (location.pathname.startsWith('/admin/')) {
-        navigate(`/admin/documents?enrollmentId=${data.enrollmentId}`);
-      } else if (location.pathname.startsWith('/registrar/')) {
-        navigate(`/registrar/documents?enrollmentId=${data.enrollmentId}`);
-      }
+      setMessage(data.message || 'Enrollment submitted successfully.');
+      setFormData((prev) => ({
+        ...initialForm,
+        schoolYear: prev.schoolYear,
+      }));
     } catch (err) {
-      setError(err.response?.data?.message || 'Enrollment submission failed.');
+      setError(err.response?.data?.message || 'Failed to submit enrollment.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="enroll-layout">
-      <form className="enroll-card" onSubmit={handleSubmit}>
-        <h1>PNHS Enrollment Form</h1>
-        <p>Capture learner details and submit for sectioning.</p>
+    <section className="enroll-card enrollment-layout">
+      <h1>Student Enrollment</h1>
+      <p>Register learners and assign them to the correct grade and section.</p>
 
-        <label htmlFor="lrn">LRN</label>
-        <input
-          id="lrn"
-          name="lrn"
-          type="text"
-          inputMode="numeric"
-          maxLength={12}
-          placeholder="12-digit LRN"
-          value={formData.lrn}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="firstName">First Name</label>
-        <input
-          id="firstName"
-          name="firstName"
-          type="text"
-          value={formData.firstName}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="lastName">Last Name</label>
-        <input
-          id="lastName"
-          name="lastName"
-          type="text"
-          value={formData.lastName}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="gradeLevel">Grade Level</label>
-        <select
-          id="gradeLevel"
-          name="gradeLevel"
-          value={formData.gradeLevel}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select grade level</option>
-          {gradeOptions.map((grade) => (
-            <option key={grade} value={grade}>
-              Grade {grade}
-            </option>
-          ))}
-        </select>
-
-        {isSHS && (
-          <>
-            <label htmlFor="trackId">Track</label>
-            <select
-              id="trackId"
-              name="trackId"
-              value={formData.trackId}
-              onChange={handleChange}
+      <form className="enrollment-form" onSubmit={handleSubmit}>
+        <div className="enrollment-grid">
+          <div className="field-block">
+            <label htmlFor="lrn">LRN</label>
+            <input
+              id="lrn"
+              type="text"
+              inputMode="numeric"
+              maxLength={12}
+              value={formData.lrn}
+              onChange={(event) => updateField('lrn', event.target.value.replace(/\D/g, ''))}
+              placeholder="12-digit learner reference number"
               required
+            />
+          </div>
+
+          <div className="field-block">
+            <label htmlFor="schoolYear">School Year</label>
+            <input
+              id="schoolYear"
+              type="text"
+              value={formData.schoolYear}
+              onChange={(event) => updateField('schoolYear', event.target.value)}
+              placeholder="e.g. 2026-2027"
+              required
+            />
+          </div>
+
+          <div className="field-block">
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              id="lastName"
+              type="text"
+              value={formData.lastName}
+              onChange={(event) => updateField('lastName', event.target.value)}
+              required
+            />
+          </div>
+
+          <div className="field-block">
+            <label htmlFor="firstName">First Name</label>
+            <input
+              id="firstName"
+              type="text"
+              value={formData.firstName}
+              onChange={(event) => updateField('firstName', event.target.value)}
+              required
+            />
+          </div>
+
+          <div className="field-block">
+            <label htmlFor="middleName">Middle Name</label>
+            <input
+              id="middleName"
+              type="text"
+              value={formData.middleName}
+              onChange={(event) => updateField('middleName', event.target.value)}
+            />
+          </div>
+
+          <div className="field-block">
+            <label htmlFor="suffix">Suffix</label>
+            <input
+              id="suffix"
+              type="text"
+              value={formData.suffix}
+              onChange={(event) => updateField('suffix', event.target.value)}
+              placeholder="Jr., III, etc."
+            />
+          </div>
+
+          <div className="field-block">
+            <label htmlFor="gradeLevel">Grade Level</label>
+            <select
+              id="gradeLevel"
+              value={formData.gradeLevel}
+              onChange={(event) => onGradeChange(event.target.value)}
             >
-              <option value="">Select track</option>
-              {tracks.map((track) => (
-                <option key={track.id} value={track.id}>
-                  {track.track_name}
+              {[7, 8, 9, 10, 11, 12].map((grade) => (
+                <option key={grade} value={grade}>
+                  Grade {grade}
                 </option>
               ))}
             </select>
+          </div>
 
-            <label htmlFor="strandId">Strand</label>
+          {isSHS && (
+            <>
+              <div className="field-block">
+                <label htmlFor="trackId">Track</label>
+                <select
+                  id="trackId"
+                  value={formData.trackId}
+                  onChange={(event) => onTrackChange(event.target.value)}
+                  required
+                >
+                  <option value="">Select track</option>
+                  {tracks.map((track) => (
+                    <option key={track.id} value={track.id}>
+                      {track.track_name} ({track.track_code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field-block">
+                <label htmlFor="strandId">Strand</label>
+                <select
+                  id="strandId"
+                  value={formData.strandId}
+                  onChange={(event) => onStrandChange(event.target.value)}
+                  required
+                  disabled={!formData.trackId}
+                >
+                  <option value="">Select strand</option>
+                  {strands.map((strand) => (
+                    <option key={strand.id} value={strand.id}>
+                      {strand.strand_name} ({strand.strand_code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="field-block field-block-wide">
+            <label htmlFor="sectionId">Section</label>
             <select
-              id="strandId"
-              name="strandId"
-              value={formData.strandId}
-              onChange={handleChange}
+              id="sectionId"
+              value={formData.sectionId}
+              onChange={(event) => updateField('sectionId', event.target.value)}
               required
-              disabled={!formData.trackId}
+              disabled={sections.length === 0}
             >
-              <option value="">Select strand</option>
-              {strands.map((strand) => (
-                <option key={strand.id} value={strand.id}>
-                  {strand.strand_name}
+              <option value="">{loadingMeta ? 'Loading sections...' : 'Select section'}</option>
+              {sections.map((section) => (
+                <option key={section.id} value={section.id}>
+                  {section.section_name} (capacity: {section.current_enrolled}/{section.capacity})
                 </option>
               ))}
             </select>
-          </>
-        )}
+          </div>
+        </div>
 
-        <label htmlFor="sectionId">Section</label>
-        <select
-          id="sectionId"
-          name="sectionId"
-          value={formData.sectionId}
-          onChange={handleChange}
-          required
-          disabled={loadingMeta || !formData.gradeLevel || (isSHS && !formData.strandId)}
-        >
-          <option value="">Select section</option>
-          {sections.map((section) => (
-            <option key={section.id} value={section.id}>
-              {section.section_name} ({section.current_enrolled}/{section.capacity})
-            </option>
-          ))}
-        </select>
-
-        <label htmlFor="schoolYear">School Year</label>
-        <input
-          id="schoolYear"
-          name="schoolYear"
-          type="text"
-          title="Use format YYYY-YYYY (example: 2026-2027)."
-          value={formData.schoolYear}
-          onChange={handleChange}
-          onBlur={handleSchoolYearBlur}
-          required
-        />
-
-        <button type="submit" disabled={submitting || loadingMeta}>
-          {submitting ? 'Submitting...' : 'Submit Enrollment'}
-        </button>
+        <div className="enrollment-footer">
+          <button type="submit" disabled={submitting || loadingMeta}>
+            {submitting ? 'Submitting...' : 'Submit Enrollment'}
+          </button>
+          <span className="meta-note">Subjects configured: {subjects.length}</span>
+        </div>
 
         {error && <p className="status error">{error}</p>}
-        {success && <p className="status success">{success}</p>}
+        {message && <p className="status success">{message}</p>}
       </form>
-
-      <aside className="subject-card">
-        <h2>Auto-Loaded Subjects</h2>
-        {!formData.gradeLevel && <p>Select a grade level to load subjects.</p>}
-        {formData.gradeLevel && subjects.length === 0 && <p>No subjects configured yet.</p>}
-        {subjects.length > 0 && (
-          <ul>
-            {subjects.map((subject) => (
-              <li key={subject.id}>
-                <span>{subject.subject_code}</span>
-                <small>{subject.subject_name}</small>
-              </li>
-            ))}
-          </ul>
-        )}
-      </aside>
-    </div>
+    </section>
   );
 }
 

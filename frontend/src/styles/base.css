@@ -9,6 +9,80 @@
   align-items: center;
 }
 
+.enroll-card {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.enroll-card h1,
+.enroll-card h2,
+.enroll-card h3 {
+  margin-top: 0;
+  color: #0B2A5A;
+}
+
+.enroll-card p {
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.enroll-card label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.enroll-card input,
+.enroll-card select,
+.enroll-card textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.enroll-card input:focus,
+.enroll-card select:focus,
+.enroll-card textarea:focus {
+  outline: 2px solid #0B2A5A;
+  outline-offset: 0;
+  border-color: #0B2A5A;
+}
+
+.enroll-card button {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 16px;
+  background: linear-gradient(135deg, #0B2A5A, #0f766e);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.enroll-card button:hover {
+  box-shadow: 0 4px 12px rgba(11, 42, 90, 0.3);
+  transform: translateY(-2px);
+}
+
+.enroll-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .status {
   margin-top: 12px;
   border-radius: 10px;

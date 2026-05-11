@@ -3,7 +3,10 @@
   --ink: #0f172a;
   --body: #1e293b;
   --paper: #f8fafc;
-  --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-main: 'Inter', 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --brand-navy: #0B2A5A;
+  --brand-yellow: #FFD43B;
+  --light-bg: #EAF4FF;
 }
 
 * {
@@ -15,7 +18,7 @@ body {
   min-height: 100vh;
   color: var(--body);
   font-family: var(--font-main);
-  background: #e5f3fd;
+  background: var(--light-bg);
 }
 
 #root {

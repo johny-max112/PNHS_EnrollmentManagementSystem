@@ -1,18 +1,209 @@
-.workflow-controls {
-  max-width: 300px;
-  margin-bottom: 16px;
+.dashboard-header {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
-.workflow-controls select {
+.dashboard-header h1 {
+  margin: 0 0 4px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0B2A5A;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
   width: 100%;
-  margin-top: 8px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0B2A5A;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0B2A5A;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.left-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.right-controls {
+  margin-left: auto;
+}
+
+.filter-tab {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tab.small {
+  padding: 6px 10px;
+  font-size: 0.78rem;
+}
+
+.filter-tab:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.filter-tab.active {
+  background: #0B2A5A;
+  color: #ffffff;
+  border-color: #0B2A5A;
+}
+
+.search-bar-container {
+  margin-bottom: 18px;
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 320px;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
-  padding: 10px;
+  padding: 11px 14px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.year-select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.85rem;
+}
+
+.school-year-cell {
+  font-weight: 600;
+  color: #0B2A5A;
+}
+
+.search-bar:focus {
+  outline: 2px solid #0B2A5A;
+  outline-offset: 0;
+  border-color: #0B2A5A;
+}
+
+.search-bar::placeholder {
+  color: #94a3b8;
+}
+
+.lrn-cell {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #0B2A5A;
+}
+
+.status-badge {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-badge.status-approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-docs-pending {
+  background: #fed7aa;
+  color: #7c2d12;
+}
+
+.status-badge.status-verified {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.status-default {
+  background: #e2e8f0;
+  color: #334155;
 }
 
 .table-wrap {
   overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .workflow-table {
@@ -24,29 +215,45 @@
 .workflow-table th,
 .workflow-table td {
   border: 1px solid #e2e8f0;
-  padding: 8px;
+  padding: 14px 12px;
   text-align: left;
 }
 
 .workflow-table th {
   background: #f8fafc;
+  font-weight: 700;
+  color: #1e293b;
 }
 
-.workflow-table select {
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 6px;
+.workflow-table td {
+  color: #475569;
+  background: #ffffff;
 }
 
-.workflow-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.workflow-table tbody tr:hover {
+  background: #f8fafc;
 }
 
 @media (max-width: 860px) {
-  .workflow-actions {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section-header {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+  }
+
+  .filter-tabs {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .search-bar {
+    max-width: 100%;
+  }
+
+  .workflow-table {
+    min-width: 800px;
   }
 }
