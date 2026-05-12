@@ -332,6 +332,165 @@ async function verifyDocument(req, res) {
 }
 
 /**
+ * Manually set requirement status without file upload.
+ * PATCH /api/documents/enrollment/:enrollmentId/requirements/:documentTypeId
+ */
+async function setRequirementStatus(req, res) {
+  const enrollmentId = Number(req.params.enrollmentId);
+  const documentTypeId = Number(req.params.documentTypeId);
+  const { status, rejectionReason } = req.body;
+
+  if (!Number.isInteger(enrollmentId) || enrollmentId <= 0) {
+    return res.status(400).json({ message: 'Invalid enrollment ID.' });
+  }
+
+  if (!Number.isInteger(documentTypeId) || documentTypeId <= 0) {
+    return res.status(400).json({ message: 'Invalid document type ID.' });
+  }
+
+  if (!status || !['verified', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Status must be "verified" or "rejected".' });
+  }
+
+  if (status === 'rejected' && !rejectionReason) {
+    return res.status(400).json({ message: 'Rejection reason is required.' });
+  }
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [enrollmentRows] = await connection.query(
+      'SELECT id, grade_level FROM enrollments WHERE id = ? LIMIT 1',
+      [enrollmentId]
+    );
+
+    if (enrollmentRows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ message: 'Enrollment not found.' });
+    }
+
+    const gradeLevel = enrollmentRows[0].grade_level;
+
+    const [docTypeRows] = await connection.query(
+      `SELECT id, code, name
+       FROM document_types
+       WHERE id = ?
+         AND is_active = 1
+         AND FIND_IN_SET(?, required_for_grades) > 0
+       LIMIT 1`,
+      [documentTypeId, gradeLevel]
+    );
+
+    if (docTypeRows.length === 0) {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Document type is not required for this student grade level.' });
+    }
+
+    const [existingRows] = await connection.query(
+      `SELECT id
+       FROM enrollment_documents
+       WHERE enrollment_id = ? AND document_type_id = ?
+       LIMIT 1`,
+      [enrollmentId, documentTypeId]
+    );
+
+    let documentId;
+
+    if (existingRows.length > 0) {
+      documentId = existingRows[0].id;
+      await connection.query(
+        `UPDATE enrollment_documents
+         SET status = ?,
+             rejection_reason = ?,
+             verified_by = ?,
+             verified_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [status, status === 'rejected' ? rejectionReason : null, req.user.userId, documentId]
+      );
+    } else {
+      const [insertResult] = await connection.query(
+        `INSERT INTO enrollment_documents
+         (enrollment_id, document_type_id, file_name, file_path, file_size, mime_type, status, rejection_reason, uploaded_by, verified_by, verified_at)
+         VALUES (?, ?, 'OFFICE_SUBMISSION', 'MANUAL_CHECK', NULL, 'manual/check', ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+        [
+          enrollmentId,
+          documentTypeId,
+          status,
+          status === 'rejected' ? rejectionReason : null,
+          req.user.userId,
+          req.user.userId,
+        ]
+      );
+
+      documentId = insertResult.insertId;
+    }
+
+    await connection.query(
+      `INSERT INTO enrollment_audit_logs
+       (enrollment_id, action, new_value, changed_by, notes)
+       VALUES (?, 'Requirement status updated', ?, ?, ?)`,
+      [
+        enrollmentId,
+        `${docTypeRows[0].code}: ${status}`,
+        status === 'verified'
+          ? 'Marked complete in Requirement Validator (office submission).'
+          : `Marked incomplete in Requirement Validator. Reason: ${rejectionReason}`,
+        req.user.userId,
+      ]
+    );
+
+    const [requiredDocs] = await connection.query(
+      `SELECT COUNT(*) AS count
+       FROM document_types
+       WHERE is_active = 1
+         AND FIND_IN_SET((SELECT grade_level FROM enrollments WHERE id = ?), required_for_grades) > 0`,
+      [enrollmentId]
+    );
+
+    const [verifiedDocs] = await connection.query(
+      `SELECT COUNT(DISTINCT document_type_id) AS count
+       FROM enrollment_documents
+       WHERE enrollment_id = ? AND status = 'verified'`,
+      [enrollmentId]
+    );
+
+    if (requiredDocs[0].count === verifiedDocs[0].count) {
+      await connection.query(
+        `UPDATE enrollments
+         SET status = 'verified', verified_by = ?
+         WHERE id = ?`,
+        [req.user.userId, enrollmentId]
+      );
+    } else if (status === 'rejected') {
+      await connection.query(
+        `UPDATE enrollments
+         SET status = 'documents_pending'
+         WHERE id = ?`,
+        [enrollmentId]
+      );
+    }
+
+    await connection.commit();
+
+    return res.json({
+      message: `Requirement marked as ${status}.`,
+      enrollmentId,
+      documentTypeId,
+      documentId,
+      status,
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Failed to update requirement status:', error);
+    return res.status(500).json({ message: 'Failed to update requirement status.' });
+  } finally {
+    connection.release();
+  }
+}
+
+/**
  * Delete document
  * DELETE /api/documents/:documentId
  */
@@ -393,5 +552,6 @@ module.exports = {
   checkDocumentStatus,
   uploadDocument,
   verifyDocument,
+  setRequirementStatus,
   deleteDocument,
 };

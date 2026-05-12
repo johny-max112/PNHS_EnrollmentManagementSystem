@@ -111,12 +111,12 @@ CREATE TABLE IF NOT EXISTS user_activity_logs (
 INSERT INTO document_types (code, name, description, required_for_grades)
 VALUES
   ('FORM137', 'Form 137-A', 'Permanent Record/Report Card', '7,8,9,10'),
-  ('FORM138', 'Form 138', 'Certificate of Eligibility', '11,12'),
-  ('CERT_GOOD_MORAL', 'Certificate of Good Moral', 'Good Moral Certificate', '7,8,9,10,11,12'),
-  ('MEDICAL_CERT', 'Medical Certificate', 'Physical Examination Report', '7,8,9,10,11,12'),
-  ('BIRTH_CERT', 'Birth Certificate', 'NSO Birth Certificate (Certified True Copy)', '7,8,9,10,11,12'),
-  ('TRANSFER_CERT', 'Transfer Certificate', 'Certificate of Transfer (if applicable)', '8,9,10'),
-  ('PSA_CREDENTIALS', 'PSA Credentials', 'Philippine Statistics Authority Certification', '11,12')
+  ('FORM138', 'Form 138', 'Certificate of Eligibility', '7,8,9,10'),
+  ('CERT_GOOD_MORAL', 'Certificate of Good Moral', 'Good Moral Certificate', '7,8,9,10'),
+  ('MEDICAL_CERT', 'Medical Certificate', 'Physical Examination Report', '7,8,9,10'),
+  ('BIRTH_CERT', 'Birth Certificate', 'NSO Birth Certificate (Certified True Copy)', '7,8,9,10'),
+  ('TRANSFER_CERT', 'Transfer Certificate', 'Certificate of Transfer (if applicable)', '7,8,9,10'),
+  ('PSA_CREDENTIALS', 'PSA Credentials', 'Philippine Statistics Authority Certification', '7,8,9,10')
 ON DUPLICATE KEY UPDATE
   name = VALUES(name),
   description = VALUES(description),

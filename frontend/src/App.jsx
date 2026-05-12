@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import PortalHomePage from './pages/PortalHomePage'
-import EnrollmentPage from './pages/EnrollmentPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ReportsPage from './pages/ReportsPage'
@@ -112,14 +111,6 @@ function App() {
           element={<LoginPage expectedRole="registrar" onLogin={(data) => handleLogin('registrar', data)} />}
         />
         <Route
-          path="/admin/enroll"
-          element={
-            <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
-              <EnrollmentPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/admin/documents"
           element={
             <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
@@ -148,14 +139,6 @@ function App() {
           element={
             <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
               <AdminUsersPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/registrar/enroll"
-          element={
-            <ProtectedRoute auth={registrarAuth} allowedRoles={['registrar']}>
-              <EnrollmentPage />
             </ProtectedRoute>
           }
         />

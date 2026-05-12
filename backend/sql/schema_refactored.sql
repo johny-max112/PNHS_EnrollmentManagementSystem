@@ -200,31 +200,18 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO document_types (code, name, description, required_for_grades)
 VALUES
   ('FORM137', 'Form 137-A', 'Permanent Record/Report Card', '7,8,9,10'),
-  ('FORM138', 'Form 138', 'Certificate of Eligibility', '11,12'),
-  ('CERT_GOOD_MORAL', 'Certificate of Good Moral', 'Good Moral Certificate', '7,8,9,10,11,12'),
-  ('MEDICAL_CERT', 'Medical Certificate', 'Physical Examination Report', '7,8,9,10,11,12'),
-  ('BIRTH_CERT', 'Birth Certificate', 'NSO Birth Certificate (Certified True Copy)', '7,8,9,10,11,12'),
-  ('TRANSFER_CERT', 'Transfer Certificate', 'Certificate of Transfer (if applicable)', '8,9,10'),
-  ('PSA_CREDENTIALS', 'PSA Credentials', 'Philippine Statistics Authority Certification', '11,12')
+  ('FORM138', 'Form 138', 'Certificate of Eligibility', '7,8,9,10'),
+  ('CERT_GOOD_MORAL', 'Certificate of Good Moral', 'Good Moral Certificate', '7,8,9,10'),
+  ('MEDICAL_CERT', 'Medical Certificate', 'Physical Examination Report', '7,8,9,10'),
+  ('BIRTH_CERT', 'Birth Certificate', 'NSO Birth Certificate (Certified True Copy)', '7,8,9,10'),
+  ('TRANSFER_CERT', 'Transfer Certificate', 'Certificate of Transfer (if applicable)', '7,8,9,10'),
+  ('PSA_CREDENTIALS', 'PSA Credentials', 'Philippine Statistics Authority Certification', '7,8,9,10')
 ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description);
 
 INSERT INTO tracks (track_code, track_name, description)
 VALUES
-  ('JHS', 'Junior High School', 'Grades 7-10'),
-  ('ACAD', 'Academic Track', 'Science, Technology, Business, and Social Sciences'),
-  ('TVL', 'Technical-Vocational-Livelihood', 'Technical and Vocational Programs')
+  ('JHS', 'Junior High School', 'Grades 7-10')
 ON DUPLICATE KEY UPDATE track_name = VALUES(track_name), description = VALUES(description);
-
-INSERT INTO strands (track_id, strand_code, strand_name, description)
-SELECT t.id, s.strand_code, s.strand_name, s.description
-FROM (
-  SELECT 'ACAD' AS track_code, 'STEM' AS strand_code, 'STEM' AS strand_name, 'Science, Technology, Engineering, and Mathematics' AS description
-  UNION ALL SELECT 'ACAD', 'ABM', 'ABM', 'Accountancy, Business, and Management'
-  UNION ALL SELECT 'ACAD', 'HUMSS', 'HUMSS', 'Humanities and Social Sciences'
-  UNION ALL SELECT 'TVL', 'ICT', 'ICT', 'Information and Communications Technology'
-) s
-JOIN tracks t ON t.track_code = s.track_code
-ON DUPLICATE KEY UPDATE strand_name = VALUES(strand_name);
 
 INSERT INTO sections (section_name, grade_level, strand_id, capacity)
 VALUES
@@ -232,21 +219,6 @@ VALUES
   ('Bonifacio', 8, NULL, 45),
   ('Mabini', 9, NULL, 45),
   ('Del Pilar', 10, NULL, 45)
-ON DUPLICATE KEY UPDATE capacity = VALUES(capacity);
-
-INSERT INTO sections (section_name, grade_level, strand_id, capacity)
-SELECT s.section_name, s.grade_level, st.id, s.capacity
-FROM (
-  SELECT 'STEM-A' AS section_name, 11 AS grade_level, 'STEM' AS strand_code, 45 AS capacity
-  UNION ALL SELECT 'ABM-A', 11, 'ABM', 45
-  UNION ALL SELECT 'HUMSS-A', 11, 'HUMSS', 45
-  UNION ALL SELECT 'ICT-A', 11, 'ICT', 45
-  UNION ALL SELECT 'STEM-B', 12, 'STEM', 45
-  UNION ALL SELECT 'ABM-B', 12, 'ABM', 45
-  UNION ALL SELECT 'HUMSS-B', 12, 'HUMSS', 45
-  UNION ALL SELECT 'ICT-B', 12, 'ICT', 45
-) s
-JOIN strands st ON st.strand_code = s.strand_code
 ON DUPLICATE KEY UPDATE capacity = VALUES(capacity);
 
 INSERT INTO subjects (subject_code, subject_name, grade_level, strand_id, units)
@@ -279,44 +251,6 @@ VALUES
   ('MAPEH10', 'MAPEH 10', 10, NULL, 2),
   ('TLE10', 'TLE 10', 10, NULL, 3),
   ('TEKNOLOHIYA10', 'Teknolohiya 10', 10, NULL, 3)
-ON DUPLICATE KEY UPDATE subject_name = VALUES(subject_name), units = VALUES(units);
-
-INSERT INTO subjects (subject_code, subject_name, grade_level, strand_id, units)
-SELECT x.subject_code, x.subject_name, x.grade_level, st.id, x.units
-FROM (
-  SELECT 'ORAL_COMM11' AS subject_code, 'Oral Communication in Context' AS subject_name, 11 AS grade_level, 'STEM' AS strand_code, 3 AS units
-  UNION ALL SELECT 'STAT_PROB11', 'Statistics and Probability', 11, 'STEM', 3
-  UNION ALL SELECT 'PHYSICS11', 'General Physics 1', 11, 'STEM', 3
-  UNION ALL SELECT 'CHEM11', 'Chemistry', 11, 'STEM', 3
-  UNION ALL SELECT 'BIO11', 'Biology', 11, 'STEM', 3
-  UNION ALL SELECT 'ORAL_COMM11', 'Oral Communication in Context', 11, 'ABM', 3
-  UNION ALL SELECT 'ACC_FUND11', 'Fundamentals of Accountancy', 11, 'ABM', 3
-  UNION ALL SELECT 'BUS_MATH11', 'Business Mathematics', 11, 'ABM', 3
-  UNION ALL SELECT 'ECONOMICS11', 'Contemporary World', 11, 'ABM', 3
-  UNION ALL SELECT 'ORAL_COMM11', 'Oral Communication in Context', 11, 'HUMSS', 3
-  UNION ALL SELECT 'PHILO11', 'Introduction to Philosophy of the Human Person', 11, 'HUMSS', 3
-  UNION ALL SELECT 'HISTORY11', 'Philippine History', 11, 'HUMSS', 3
-  UNION ALL SELECT 'GEOG11', 'Geography', 11, 'HUMSS', 3
-  UNION ALL SELECT 'ORAL_COMM11', 'Oral Communication in Context', 11, 'ICT', 3
-  UNION ALL SELECT 'PROG_C11', 'Computer Programming 1 (C)', 11, 'ICT', 3
-  UNION ALL SELECT 'SYS_ADMIN11', 'System Administration & Maintenance', 11, 'ICT', 3
-  UNION ALL SELECT 'IT_ESSENTIALS11', 'IT Essentials', 11, 'ICT', 3
-  UNION ALL SELECT 'RESEARCH12', 'Practical Research 2', 12, 'STEM', 3
-  UNION ALL SELECT 'CALCULUS12', 'Basic Calculus', 12, 'STEM', 3
-  UNION ALL SELECT 'PHYSICS12', 'General Physics 2', 12, 'STEM', 3
-  UNION ALL SELECT 'EARTH_SCI12', 'Earth and Life Science', 12, 'STEM', 3
-  UNION ALL SELECT 'RESEARCH12', 'Practical Research 2', 12, 'ABM', 3
-  UNION ALL SELECT 'ACCT_12', 'Accounting 2', 12, 'ABM', 3
-  UNION ALL SELECT 'FINANCE12', 'Business Finance', 12, 'ABM', 3
-  UNION ALL SELECT 'BUSINESS_LAW12', 'Business Law', 12, 'ABM', 3
-  UNION ALL SELECT 'CREATIVE_WRITING12', 'Creative Writing', 12, 'HUMSS', 3
-  UNION ALL SELECT 'SOCIOLOGY12', 'Sociology', 12, 'HUMSS', 3
-  UNION ALL SELECT 'ECONOMICS12', 'Economics', 12, 'HUMSS', 3
-  UNION ALL SELECT 'RESEARCH12', 'Practical Research 2', 12, 'ICT', 3
-  UNION ALL SELECT 'WEB_DEV12', 'Web Development', 12, 'ICT', 3
-  UNION ALL SELECT 'NETWORK12', 'Networking', 12, 'ICT', 3
-) x
-JOIN strands st ON st.strand_code = x.strand_code
 ON DUPLICATE KEY UPDATE subject_name = VALUES(subject_name), units = VALUES(units);
 
 -- ============================================================================

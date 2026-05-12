@@ -41,14 +41,10 @@ async function listEnrollments(req, res) {
         s.lrn,
         s.first_name,
         s.last_name,
-        sec.section_name,
-        t.track_name,
-        st.strand_name
+        sec.section_name
       FROM enrollments e
       JOIN students s ON s.id = e.student_id
       JOIN sections sec ON sec.id = e.section_id
-      LEFT JOIN tracks t ON t.id = e.track_id
-      LEFT JOIN strands st ON st.id = e.strand_id
       ${whereSql}
       ORDER BY e.created_at DESC`,
       params
@@ -98,14 +94,10 @@ async function getEnrollmentApplication(req, res) {
         s.last_name,
         s.middle_name,
         s.suffix,
-        sec.section_name,
-        t.track_name,
-        st.strand_name
+        sec.section_name
       FROM enrollments e
       JOIN students s ON s.id = e.student_id
       JOIN sections sec ON sec.id = e.section_id
-      LEFT JOIN tracks t ON t.id = e.track_id
-      LEFT JOIN strands st ON st.id = e.strand_id
       WHERE e.id = ?
       LIMIT 1`,
       [enrollmentId]

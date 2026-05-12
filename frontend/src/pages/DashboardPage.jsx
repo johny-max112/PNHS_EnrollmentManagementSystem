@@ -58,6 +58,10 @@ function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    if (!selectedYear) {
+      return;
+    }
+
     // reload when selected year changes
     loadEnrollments(selectedYear);
   }, [selectedYear]);
@@ -86,9 +90,8 @@ function DashboardPage() {
   const stats = useMemo(() => {
     const total = allEnrollments.length;
     const jhs = allEnrollments.filter((e) => Number(e.grade_level) >= 7 && Number(e.grade_level) <= 10).length;
-    const shs = allEnrollments.filter((e) => Number(e.grade_level) >= 11).length;
     const pending = allEnrollments.filter((e) => e.status === 'pending' || e.status === 'documents_pending').length;
-    return { total, jhs, shs, pending };
+    return { total, jhs, pending };
   }, [allEnrollments]);
 
   const onStatusChange = async (enrollmentId, nextStatus) => {
@@ -135,10 +138,6 @@ function DashboardPage() {
         <div className="stat-card">
           <span className="stat-label">JHS Students</span>
           <span className="stat-value">{stats.jhs}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-label">SHS Students</span>
-          <span className="stat-value">{stats.shs}</span>
         </div>
         <div className="stat-card">
           <span className="stat-label">Pending Enrollments</span>
@@ -198,7 +197,7 @@ function DashboardPage() {
                 <th>School Year</th>
                 <th>Student Name</th>
                 <th>Grade Level</th>
-                <th>Strand</th>
+                <th>Section</th>
                 <th>Enrollment Date</th>
                 <th>Status</th>
               </tr>
@@ -215,7 +214,7 @@ function DashboardPage() {
                       <td className="school-year-cell">{item.school_year || '—'}</td>
                       <td>{item.last_name}, {item.first_name}</td>
                       <td>Grade {item.grade_level}</td>
-                      <td>{item.strand_name || item.section_name || '—'}</td>
+                      <td>{item.section_name || '—'}</td>
                       <td>{formatDate(item.created_at)}</td>
                     <td>
                       <span className={`status-badge ${badgeInfo.className}`}>

@@ -6,6 +6,7 @@ const {
   checkDocumentStatus,
   uploadDocument,
   verifyDocument,
+  setRequirementStatus,
   deleteDocument,
 } = require('../controllers/documentController');
 
@@ -44,6 +45,12 @@ router.post('/enrollment/:enrollmentId/upload', upload.single('file'), uploadDoc
  * Verify or reject a document (registrar/admin)
  */
 router.patch('/:documentId/verify', verifyDocument);
+
+/**
+ * PATCH /api/documents/enrollment/:enrollmentId/requirements/:documentTypeId
+ * Manually check/uncheck requirement completion for office-submitted documents.
+ */
+router.patch('/enrollment/:enrollmentId/requirements/:documentTypeId', setRequirementStatus);
 
 /**
  * DELETE /api/documents/:documentId

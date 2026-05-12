@@ -31,51 +31,13 @@ JOIN sections sec ON sec.section_name = 'Mabini' AND sec.grade_level = 9
 WHERE st.lrn = '100000000002'
 ON DUPLICATE KEY UPDATE status = VALUES(status), section_id = VALUES(section_id), enrolled_by = VALUES(enrolled_by);
 
-INSERT INTO enrollments (student_id, grade_level, track_id, strand_id, section_id, school_year, status, enrolled_by)
-SELECT st.id, 11, tr.id, sd.id, sec.id, '2026-2027', 'enrolled', @admin_id
-FROM students st
-JOIN tracks tr ON tr.track_code = 'ACAD'
-JOIN strands sd ON sd.strand_code = 'STEM'
-JOIN sections sec ON sec.section_name = 'STEM-A' AND sec.grade_level = 11
-WHERE st.lrn = '100000000003'
-ON DUPLICATE KEY UPDATE status = VALUES(status), section_id = VALUES(section_id), track_id = VALUES(track_id), strand_id = VALUES(strand_id), enrolled_by = VALUES(enrolled_by);
-
-INSERT INTO enrollments (student_id, grade_level, track_id, strand_id, section_id, school_year, status, enrolled_by)
-SELECT st.id, 11, tr.id, sd.id, sec.id, '2026-2027', 'verified', @admin_id
-FROM students st
-JOIN tracks tr ON tr.track_code = 'ACAD'
-JOIN strands sd ON sd.strand_code = 'ABM'
-JOIN sections sec ON sec.section_name = 'ABM-A' AND sec.grade_level = 11
-WHERE st.lrn = '100000000004'
-ON DUPLICATE KEY UPDATE status = VALUES(status), section_id = VALUES(section_id), track_id = VALUES(track_id), strand_id = VALUES(strand_id), enrolled_by = VALUES(enrolled_by);
-
-INSERT INTO enrollments (student_id, grade_level, track_id, strand_id, section_id, school_year, status, enrolled_by)
-SELECT st.id, 12, tr.id, sd.id, sec.id, '2026-2027', 'enrolled', @admin_id
-FROM students st
-JOIN tracks tr ON tr.track_code = 'TVL'
-JOIN strands sd ON sd.strand_code = 'ICT'
-JOIN sections sec ON sec.section_name = 'ICT-B' AND sec.grade_level = 12
-WHERE st.lrn = '100000000005'
-ON DUPLICATE KEY UPDATE status = VALUES(status), section_id = VALUES(section_id), track_id = VALUES(track_id), strand_id = VALUES(strand_id), enrolled_by = VALUES(enrolled_by);
-
-INSERT INTO enrollments (student_id, grade_level, track_id, strand_id, section_id, school_year, status, enrolled_by)
-SELECT st.id, 12, tr.id, sd.id, sec.id, '2026-2027', 'cancelled', @admin_id
-FROM students st
-JOIN tracks tr ON tr.track_code = 'ACAD'
-JOIN strands sd ON sd.strand_code = 'HUMSS'
-JOIN sections sec ON sec.section_name = 'HUMSS-B' AND sec.grade_level = 12
-WHERE st.lrn = '100000000006'
-ON DUPLICATE KEY UPDATE status = VALUES(status), section_id = VALUES(section_id), track_id = VALUES(track_id), strand_id = VALUES(strand_id), enrolled_by = VALUES(enrolled_by);
-
 INSERT IGNORE INTO enrollment_subjects (enrollment_id, subject_id)
 SELECT e.id, sub.id
 FROM enrollments e
 JOIN subjects sub ON sub.grade_level = e.grade_level AND sub.is_active = 1
 WHERE e.school_year = '2026-2027'
-  AND (
-    (e.grade_level BETWEEN 7 AND 10 AND sub.strand_id IS NULL)
-    OR (e.grade_level BETWEEN 11 AND 12 AND (sub.strand_id IS NULL OR sub.strand_id = e.strand_id))
-  );
+  AND e.grade_level BETWEEN 7 AND 10
+  AND sub.strand_id IS NULL;
 
 INSERT INTO enrollment_audit_logs (enrollment_id, action, old_value, new_value, changed_by, notes)
 SELECT e.id, 'status_change', NULL, e.status, @admin_id, 'Seeded sample enrollment'

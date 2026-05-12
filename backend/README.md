@@ -27,8 +27,6 @@ Backend for the internal PNHS enrollment system where only staff users can opera
 - `GET /health`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
-- `GET /api/enroll/meta?gradeLevel=11&trackId=2&strandId=1`
-- `POST /api/enroll`
 - `GET /api/documents/enrollment/:enrollmentId`
 - `GET /api/documents/check/:enrollmentId`
 - `POST /api/documents/enrollment/:enrollmentId/upload`

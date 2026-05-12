@@ -11,7 +11,6 @@ export default function Sidebar({ auth, role, onLogout }) {
   if (role === 'admin') {
     navItems.push(
       { label: 'Dashboard', path: '/admin/dashboard' },
-      { label: 'Student Enrollment', path: '/admin/enroll' },
       { label: 'Requirement Validator', path: '/admin/documents' },
       { label: 'Reports', path: '/admin/reports' },
       { label: 'Users', path: '/admin/users' }
@@ -19,7 +18,6 @@ export default function Sidebar({ auth, role, onLogout }) {
   } else if (role === 'registrar') {
     navItems.push(
       { label: 'Dashboard', path: '/registrar/dashboard' },
-      { label: 'Student Enrollment', path: '/registrar/enroll' },
       { label: 'Requirement Validator', path: '/registrar/documents' },
       { label: 'Reports', path: '/registrar/reports' }
     )
