@@ -289,8 +289,35 @@ async function lookupStudent(req, res) {
   }
 }
 
+async function searchStudents(req, res) {
+  try {
+    const q = (req.query.query || '').trim();
+    if (!q) return res.json({ students: [] });
+
+    const like = `%${q}%`;
+    // search by lrn, first name, last name, or full name
+    const [rows] = await pool.query(
+      `SELECT id, lrn, first_name, last_name, middle_name
+       FROM students
+       WHERE lrn LIKE ?
+         OR first_name LIKE ?
+         OR last_name LIKE ?
+         OR CONCAT(first_name, ' ', last_name) LIKE ?
+       ORDER BY last_name, first_name
+       LIMIT 10`,
+      [like, like, like, like]
+    );
+
+    return res.json({ students: rows || [] });
+  } catch (err) {
+    console.error('searchStudents failed', err);
+    return res.status(500).json({ message: 'Search failed' });
+  }
+}
+
 module.exports = {
   getEnrollMeta,
   createEnrollment,
   lookupStudent,
 };
+

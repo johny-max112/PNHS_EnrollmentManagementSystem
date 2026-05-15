@@ -25,6 +25,7 @@ function StudentEnrollmentPage() {
   const [subjects, setSubjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const searchTimer = useRef(null);
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -72,12 +73,36 @@ function StudentEnrollmentPage() {
     }
   };
 
+  const searchSuggestions = async (q) => {
+    if (!q || q.trim().length === 0) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const { data } = await api.get('/api/enroll/search', { params: { query: q } });
+      setSuggestions(data.students || []);
+    } catch (err) {
+      console.error('search suggestions failed', err);
+      setSuggestions([]);
+    }
+  };
+
   const onSearchChange = (val) => {
     setSearchQuery(val);
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
-      lookupStudent(val.trim());
-    }, 350);
+      searchSuggestions(val.trim());
+    }, 250);
+  };
+
+  const selectSuggestion = (student) => {
+    const display = `${student.last_name}, ${student.first_name}${student.middle_name ? ' ' + student.middle_name : ''}`;
+    setSearchQuery(display);
+    setSuggestions([]);
+    // prefer LRN lookup if available
+    if (student.lrn) lookupStudent(student.lrn);
+    else lookupStudent(`${student.first_name} ${student.last_name}`);
   };
 
   const filteredSections = useMemo(
@@ -148,11 +173,22 @@ function StudentEnrollmentPage() {
               </div>
 
               <div className="form-search">
-                <input
-                  placeholder="Search by LRN or Name"
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                />
+                <div className="suggestions" style={{ flex: 1, position: 'relative' }}>
+                  <input
+                    placeholder="Search by LRN or Name"
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                  />
+                  {suggestions.length > 0 && (
+                    <ul className="suggestions-list">
+                      {suggestions.map((s) => (
+                        <li key={s.id} onClick={() => selectSuggestion(s)}>
+                          {s.lrn ? `${s.lrn} — ` : ''}{s.last_name}, {s.first_name}{s.middle_name ? ' ' + s.middle_name : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
                 <select value={formData.gradeLevel} onChange={(e) => updateField('gradeLevel', e.target.value)}>
                   <option value="7">Grade 7</option>
                   <option value="8">Grade 8</option>
