@@ -1,0 +1,133 @@
+.subject-assignment-shell {
+  padding: 28px 36px;
+  background: #e9f6fb;
+  min-height: 100vh;
+}
+
+.subject-assignment-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.subject-form-col {
+  flex: 1 1 700px;
+}
+
+.form-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(2,6,23,0.06);
+  overflow: hidden;
+}
+
+.form-card-inner {
+  max-height: 76vh;
+  overflow: auto;
+  padding: 20px 28px;
+}
+
+.form-header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.form-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: white;
+  padding: 6px;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.form-search {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-search input,
+.form-search select,
+.subject-form input,
+.subject-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.subject-form .two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.subject-form > div,
+.subject-form .two-col > div {
+  margin-bottom: 8px;
+}
+
+.subject-form label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #222;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-actions button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.form-actions button.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.form-actions button:not(.btn-secondary) {
+  background: #2e8b57;
+  color: white;
+}
+
+.subject-preview-col {
+  width: 320px;
+}
+
+.preview-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(2,6,23,0.04);
+}
+
+.preview-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-item {
+  background: #f7fbff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.muted { color: #6b7280; font-size: 13px; }
