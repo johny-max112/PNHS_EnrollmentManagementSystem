@@ -40,12 +40,41 @@ async function createEnrollment(req, res) {
     middleName = '',
     suffix = '',
     dateOfBirth = null,
+    age = null,
     gender = null,
     contactNumber = null,
+    religion = null,
+    placeOfBirth = null,
+    houseStreet = null,
+    barangay = null,
+    municipality = null,
     address = null,
     gradeLevel,
     sectionId,
     schoolYear,
+    fatherLastName = null,
+    fatherFirstName = null,
+    fatherMiddleName = null,
+    fatherSuffix = null,
+    fatherContact = null,
+    guardianLastName = null,
+    guardianFirstName = null,
+    guardianMiddleName = null,
+    guardianSuffix = null,
+    guardianContact = null,
+    specialNeeds = false,
+    specialNeedsOption = null,
+    diagnosisA = null,
+    diagnosisB = null,
+    pwdId = false,
+    returningLearner = false,
+    lastGradeLevelCompleted = null,
+    lastSchoolYearCompleted = null,
+    lastSchoolAttended = null,
+    lastSchoolId = null,
+    distance_blended = false,
+    distance_etv = false,
+    distance_other = false,
   } = req.body;
 
   if (!isValidLRN(lrn)) {
@@ -72,9 +101,42 @@ async function createEnrollment(req, res) {
   const sanitizedLastName = sanitizeName(lastName);
   const sanitizedMiddleName = sanitizeName(middleName);
   const sanitizedSuffix = normalizeText(suffix);
+  const normalizedAge = Number.isFinite(Number(age)) ? Number(age) : null;
   const normalizedGender = normalizeText(gender).toLowerCase() || null;
   const normalizedContactNumber = normalizeText(contactNumber) || null;
-  const normalizedAddress = normalizeText(address) || null;
+  const normalizedReligion = normalizeText(religion) || null;
+  const normalizedPlaceOfBirth = normalizeText(placeOfBirth) || null;
+  const normalizedHouseStreet = normalizeText(houseStreet) || null;
+  const normalizedBarangay = normalizeText(barangay) || null;
+  const normalizedMunicipality = normalizeText(municipality) || null;
+  const normalizedAddress = [normalizedHouseStreet, normalizedBarangay, normalizedMunicipality]
+    .filter(Boolean)
+    .join(', ') || normalizeText(address) || null;
+  const normalizedFatherLastName = normalizeText(fatherLastName) || null;
+  const normalizedFatherFirstName = normalizeText(fatherFirstName) || null;
+  const normalizedFatherMiddleName = normalizeText(fatherMiddleName) || null;
+  const normalizedFatherSuffix = normalizeText(fatherSuffix) || null;
+  const normalizedFatherContact = normalizeText(fatherContact) || null;
+  const normalizedGuardianLastName = normalizeText(guardianLastName) || null;
+  const normalizedGuardianFirstName = normalizeText(guardianFirstName) || null;
+  const normalizedGuardianMiddleName = normalizeText(guardianMiddleName) || null;
+  const normalizedGuardianSuffix = normalizeText(guardianSuffix) || null;
+  const normalizedGuardianContact = normalizeText(guardianContact) || null;
+  const normalizedSpecialNeedsOption = normalizeText(specialNeedsOption).toLowerCase() || null;
+  const normalizedDiagnosisA = normalizeText(diagnosisA) || null;
+  const normalizedDiagnosisB = normalizeText(diagnosisB) || null;
+  const normalizedLastGradeLevelCompleted = Number.isFinite(Number(lastGradeLevelCompleted))
+    ? Number(lastGradeLevelCompleted)
+    : null;
+  const normalizedLastSchoolYearCompleted = normalizeText(lastSchoolYearCompleted) || null;
+  const normalizedLastSchoolAttended = normalizeText(lastSchoolAttended) || null;
+  const normalizedLastSchoolId = normalizeText(lastSchoolId) || null;
+  const normalizedSpecialNeeds = Boolean(specialNeeds);
+  const normalizedPwdId = Boolean(pwdId);
+  const normalizedReturningLearner = Boolean(returningLearner);
+  const normalizedDistanceBlended = Boolean(distance_blended);
+  const normalizedDistanceEtv = Boolean(distance_etv);
+  const normalizedDistanceOther = Boolean(distance_other);
 
   if (sanitizedFirstName.length < 2 || sanitizedLastName.length < 2) {
     return res.status(400).json({ message: 'First and last names must be at least 2 characters.' });
@@ -130,7 +192,47 @@ async function createEnrollment(req, res) {
       studentId = existingStudents[0].id;
       await connection.query(
         `UPDATE students
-         SET first_name = ?, last_name = ?, middle_name = ?, suffix = ?, date_of_birth = ?, gender = ?, contact_number = ?, address = ?, updated_at = CURRENT_TIMESTAMP
+         SET first_name = ?,
+             last_name = ?,
+             middle_name = ?,
+             suffix = ?,
+             date_of_birth = ?,
+             age = ?,
+             gender = ?,
+             contact_number = ?,
+             religion = ?,
+             place_of_birth = ?,
+             house_street = ?,
+             barangay = ?,
+             municipality = ?,
+             address = ?,
+             father_last_name = ?,
+             father_first_name = ?,
+             father_middle_name = ?,
+             father_suffix = ?,
+             father_contact = ?,
+             guardian_last_name = ?,
+             guardian_first_name = ?,
+             guardian_middle_name = ?,
+             guardian_suffix = ?,
+             guardian_contact = ?,
+             special_needs_program = ?,
+             special_needs_option = ?,
+             diagnosis_a = ?,
+             diagnosis_b = ?,
+             pwd_id = ?,
+             returning_learner = ?,
+             last_grade_level_completed = ?,
+             last_school_year_completed = ?,
+             last_school_attended = ?,
+             last_school_id = ?,
+             distance_blended = ?,
+             distance_etv = ?,
+             distance_other = ?,
+             school_year = ?,
+             grade_level = ?,
+             section_id = ?,
+             updated_at = CURRENT_TIMESTAMP
          WHERE id = ?`,
         [
           sanitizedFirstName,
@@ -138,9 +240,41 @@ async function createEnrollment(req, res) {
           sanitizedMiddleName || null,
           sanitizedSuffix || null,
           dateOfBirth || null,
+          normalizedAge,
           normalizedGender,
           normalizedContactNumber,
+          normalizedReligion,
+          normalizedPlaceOfBirth,
+          normalizedHouseStreet,
+          normalizedBarangay,
+          normalizedMunicipality,
           normalizedAddress,
+          normalizedFatherLastName,
+          normalizedFatherFirstName,
+          normalizedFatherMiddleName,
+          normalizedFatherSuffix,
+          normalizedFatherContact,
+          normalizedGuardianLastName,
+          normalizedGuardianFirstName,
+          normalizedGuardianMiddleName,
+          normalizedGuardianSuffix,
+          normalizedGuardianContact,
+          normalizedSpecialNeeds ? 1 : 0,
+          normalizedSpecialNeedsOption,
+          normalizedDiagnosisA,
+          normalizedDiagnosisB,
+          normalizedPwdId ? 1 : 0,
+          normalizedReturningLearner ? 1 : 0,
+          normalizedLastGradeLevelCompleted,
+          normalizedLastSchoolYearCompleted,
+          normalizedLastSchoolAttended,
+          normalizedLastSchoolId,
+          normalizedDistanceBlended ? 1 : 0,
+          normalizedDistanceEtv ? 1 : 0,
+          normalizedDistanceOther ? 1 : 0,
+          schoolYear,
+          gradeLevel,
+          sectionId,
           studentId,
         ]
       );
@@ -153,11 +287,43 @@ async function createEnrollment(req, res) {
           middle_name,
           suffix,
           date_of_birth,
+          age,
           gender,
           contact_number,
+          religion,
+          place_of_birth,
+          house_street,
+          barangay,
+          municipality,
           address,
+          father_last_name,
+          father_first_name,
+          father_middle_name,
+          father_suffix,
+          father_contact,
+          guardian_last_name,
+          guardian_first_name,
+          guardian_middle_name,
+          guardian_suffix,
+          guardian_contact,
+          special_needs_program,
+          special_needs_option,
+          diagnosis_a,
+          diagnosis_b,
+          pwd_id,
+          returning_learner,
+          last_grade_level_completed,
+          last_school_year_completed,
+          last_school_attended,
+          last_school_id,
+          distance_blended,
+          distance_etv,
+          distance_other,
+          school_year,
+          grade_level,
+          section_id,
           created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
         [
           lrn,
           sanitizedFirstName,
@@ -165,9 +331,41 @@ async function createEnrollment(req, res) {
           sanitizedMiddleName || null,
           sanitizedSuffix || null,
           dateOfBirth || null,
+          normalizedAge,
           normalizedGender,
           normalizedContactNumber,
+          normalizedReligion,
+          normalizedPlaceOfBirth,
+          normalizedHouseStreet,
+          normalizedBarangay,
+          normalizedMunicipality,
           normalizedAddress,
+          normalizedFatherLastName,
+          normalizedFatherFirstName,
+          normalizedFatherMiddleName,
+          normalizedFatherSuffix,
+          normalizedFatherContact,
+          normalizedGuardianLastName,
+          normalizedGuardianFirstName,
+          normalizedGuardianMiddleName,
+          normalizedGuardianSuffix,
+          normalizedGuardianContact,
+          normalizedSpecialNeeds ? 1 : 0,
+          normalizedSpecialNeedsOption,
+          normalizedDiagnosisA,
+          normalizedDiagnosisB,
+          normalizedPwdId ? 1 : 0,
+          normalizedReturningLearner ? 1 : 0,
+          normalizedLastGradeLevelCompleted,
+          normalizedLastSchoolYearCompleted,
+          normalizedLastSchoolAttended,
+          normalizedLastSchoolId,
+          normalizedDistanceBlended ? 1 : 0,
+          normalizedDistanceEtv ? 1 : 0,
+          normalizedDistanceOther ? 1 : 0,
+          schoolYear,
+          gradeLevel,
+          sectionId,
           req.user.userId,
         ]
       );
@@ -261,15 +459,37 @@ async function lookupStudent(req, res) {
     if (!student) {
       const like = `%${q}%`;
       const [nameRows] = await pool.query(
-        `SELECT * FROM students WHERE CONCAT(first_name, ' ', last_name) LIKE ? OR CONCAT(last_name, ' ', first_name) LIKE ? LIMIT 1`,
-        [like, like]
+        `SELECT * FROM students
+         WHERE CONCAT(first_name, ' ', last_name) LIKE ?
+            OR CONCAT(last_name, ' ', first_name) LIKE ?
+            OR CONCAT_WS(' ', first_name, middle_name, last_name) LIKE ?
+            OR CONCAT_WS(' ', last_name, first_name, middle_name) LIKE ?
+         LIMIT 1`,
+        [like, like, like, like]
       );
       student = nameRows.length > 0 ? nameRows[0] : null;
     }
 
     let subjects = [];
     if (student) {
-      const grade = student.grade_level || null;
+      const [enrollmentRows] = await pool.query(
+        `SELECT e.grade_level, e.section_id, sec.strand_id
+         FROM enrollments e
+         LEFT JOIN sections sec ON sec.id = e.section_id
+         WHERE e.student_id = ?
+         ORDER BY e.id DESC
+         LIMIT 1`,
+        [student.id]
+      );
+
+      const latestEnrollment = enrollmentRows.length > 0 ? enrollmentRows[0] : null;
+      const grade = latestEnrollment?.grade_level || null;
+      student = {
+        ...student,
+        grade_level: latestEnrollment?.grade_level || null,
+        section_id: latestEnrollment?.section_id || null,
+      };
+
       if (grade) {
         const [subs] = await pool.query(
           `SELECT id, subject_code, subject_name, grade_level, strand_id, units
@@ -295,17 +515,36 @@ async function searchStudents(req, res) {
     if (!q) return res.json({ students: [] });
 
     const like = `%${q}%`;
-    // search by lrn, first name, last name, or full name
+    // search by lrn, first name, middle name, last name, and common full-name permutations
     const [rows] = await pool.query(
-      `SELECT id, lrn, first_name, last_name, middle_name
-       FROM students
-       WHERE lrn LIKE ?
-         OR first_name LIKE ?
-         OR last_name LIKE ?
-         OR CONCAT(first_name, ' ', last_name) LIKE ?
-       ORDER BY last_name, first_name
+      `SELECT
+         s.id,
+         s.lrn,
+         s.first_name,
+         s.last_name,
+         s.middle_name,
+         latest_enrollment.grade_level,
+         latest_enrollment.section_id
+       FROM students s
+       LEFT JOIN (
+         SELECT e1.student_id, e1.grade_level, e1.section_id
+         FROM enrollments e1
+         INNER JOIN (
+           SELECT student_id, MAX(id) AS max_id
+           FROM enrollments
+           GROUP BY student_id
+         ) latest ON latest.student_id = e1.student_id AND latest.max_id = e1.id
+       ) latest_enrollment ON latest_enrollment.student_id = s.id
+       WHERE s.lrn LIKE ?
+          OR s.first_name LIKE ?
+          OR s.middle_name LIKE ?
+          OR s.last_name LIKE ?
+          OR CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) LIKE ?
+          OR CONCAT_WS(' ', s.last_name, s.first_name, s.middle_name) LIKE ?
+          OR CONCAT_WS(', ', s.last_name, s.first_name, s.middle_name) LIKE ?
+       ORDER BY s.last_name, s.first_name
        LIMIT 10`,
-      [like, like, like, like]
+      [like, like, like, like, like, like, like]
     );
 
     return res.json({ students: rows || [] });
@@ -319,5 +558,6 @@ module.exports = {
   getEnrollMeta,
   createEnrollment,
   lookupStudent,
+  searchStudents,
 };
 

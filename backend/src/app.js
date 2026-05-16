@@ -4,8 +4,10 @@ const { helmetConfig, apiLimiter, loginLimiter } = require('./middleware/securit
 const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const enrollRoutes = require('./routes/enrollRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const sectionAssignmentRoutes = require('./routes/sectionAssignmentRoutes');
 
 const app = express();
 
@@ -45,22 +47,21 @@ app.use(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ limit: '1mb', extended: true }));
 
-// Global rate limiter for all API endpoints (applied after health check)
-app.use('/api/', apiLimiter);
-
 // Health check (no rate limit)
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Auth routes with stricter rate limiting
+// Auth routes with stricter rate limiting (login only)
 app.use('/api/auth', loginLimiter, authRoutes);
 
-// Regular API routes (admin/registrar only)
+// Regular API routes (admin/registrar only) - no rate limiting
 app.use('/api/documents', documentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/enroll', enrollRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/section-assignment', sectionAssignmentRoutes);
 
 // 404 handler
 app.use((_req, res) => {

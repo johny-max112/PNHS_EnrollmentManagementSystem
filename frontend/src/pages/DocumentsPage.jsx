@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../api/client';
+import api, { cancelAllRequests } from '../api/client';
 import '../styles/base.css';
 import '../styles/DocumentsPage.css';
 
@@ -116,6 +116,11 @@ function DocumentsPage() {
 
   useEffect(() => {
     loadEnrollments();
+
+    // Cleanup: cancel requests when component unmounts
+    return () => {
+      cancelAllRequests();
+    };
   }, []);
 
   useEffect(() => {

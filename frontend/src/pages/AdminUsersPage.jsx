@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api/client';
+import api, { cancelAllRequests } from '../api/client';
 import '../styles/base.css';
 import '../styles/AdminUsersPage.css';
 
@@ -30,7 +30,6 @@ function AdminUsersPage() {
           fullName: user.full_name,
           role: user.role,
           isActive: Boolean(user.is_active),
-          password: '',
         };
       });
       setDrafts(nextDrafts);
@@ -43,6 +42,11 @@ function AdminUsersPage() {
 
   useEffect(() => {
     loadUsers();
+
+    // Cleanup: cancel requests when component unmounts
+    return () => {
+      cancelAllRequests();
+    };
   }, []);
 
   const updateDraft = (userId, key, value) => {
@@ -80,9 +84,6 @@ function AdminUsersPage() {
         role: draft.role,
         isActive: draft.isActive,
       };
-      if (draft.password) {
-        payload.password = draft.password;
-      }
       const { data } = await api.patch(`/api/admin/users/${userId}`, payload);
       setMessage(data.message);
       await loadUsers();
@@ -149,7 +150,6 @@ function AdminUsersPage() {
                   <th>Full Name</th>
                   <th>Role</th>
                   <th>Active</th>
-                  <th>Reset Password</th>
                   <th>Save</th>
                 </tr>
               </thead>
@@ -159,7 +159,6 @@ function AdminUsersPage() {
                     fullName: user.full_name,
                     role: user.role,
                     isActive: Boolean(user.is_active),
-                    password: '',
                   };
 
                   return (
@@ -188,14 +187,6 @@ function AdminUsersPage() {
                           <option value="active">Active</option>
                           <option value="inactive">Inactive</option>
                         </select>
-                      </td>
-                      <td>
-                        <input
-                          type="password"
-                          placeholder="Optional"
-                          value={draft.password}
-                          onChange={(event) => updateDraft(user.id, 'password', event.target.value)}
-                        />
                       </td>
                       <td>
                         <button type="button" onClick={() => saveUser(user.id)}>Save</button>

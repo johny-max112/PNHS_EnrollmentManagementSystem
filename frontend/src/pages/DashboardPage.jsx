@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import api from '../api/client';
+import api, { cancelAllRequests } from '../api/client';
 import '../styles/base.css';
 import '../styles/DashboardPage.css';
 
@@ -55,6 +55,11 @@ function DashboardPage() {
   useEffect(() => {
     // initial load to populate school years and data
     loadEnrollments();
+
+    // Cleanup: cancel requests when component unmounts
+    return () => {
+      cancelAllRequests();
+    };
   }, []);
 
   useEffect(() => {

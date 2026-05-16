@@ -6,6 +6,8 @@ import DashboardPage from './pages/DashboardPage'
 import ReportsPage from './pages/ReportsPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import DocumentsPage from './pages/DocumentsPage'
+import StudentEnrollmentPage from './pages/StudentEnrollmentPage'
+import SectionAssignmentPage from './pages/SectionAssignmentPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import Sidebar from './components/Sidebar'
 import {
@@ -111,6 +113,22 @@ function App() {
           element={<LoginPage expectedRole="registrar" onLogin={(data) => handleLogin('registrar', data)} />}
         />
         <Route
+          path="/admin/enroll"
+          element={
+            <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
+              <StudentEnrollmentPage role="admin" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/section-assignment"
+          element={
+            <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
+              <SectionAssignmentPage role="admin" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/documents"
           element={
             <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
@@ -139,6 +157,22 @@ function App() {
           element={
             <ProtectedRoute auth={adminAuth} allowedRoles={['admin']}>
               <AdminUsersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/registrar/enroll"
+          element={
+            <ProtectedRoute auth={registrarAuth} allowedRoles={['registrar']}>
+              <StudentEnrollmentPage role="registrar" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/registrar/section-assignment"
+          element={
+            <ProtectedRoute auth={registrarAuth} allowedRoles={['registrar']}>
+              <SectionAssignmentPage role="registrar" />
             </ProtectedRoute>
           }
         />

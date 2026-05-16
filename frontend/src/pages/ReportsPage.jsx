@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api/client';
+import api, { cancelAllRequests } from '../api/client';
 import '../styles/base.css';
 import '../styles/ReportsPage.css';
 
@@ -21,6 +21,11 @@ function ReportsPage() {
     };
 
     loadSections();
+
+    // Cleanup: cancel requests when component unmounts
+    return () => {
+      cancelAllRequests();
+    };
   }, []);
 
   const openReport = async (url) => {

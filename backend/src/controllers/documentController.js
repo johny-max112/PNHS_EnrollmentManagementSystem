@@ -434,10 +434,10 @@ async function setRequirementStatus(req, res) {
       [
         enrollmentId,
         `${docTypeRows[0].code}: ${status}`,
+        req.user.userId,
         status === 'verified'
           ? 'Marked complete in Requirement Validator (office submission).'
           : `Marked incomplete in Requirement Validator. Reason: ${rejectionReason}`,
-        req.user.userId,
       ]
     );
 
